@@ -1,0 +1,7 @@
+export enum PackagingType {
+  CARDBOARD_BOX = 'CARDBOARD_BOX',
+  PLASTIC_BAG = 'PLASTIC_BAG',
+  BUBBLE_WRAP = 'BUBBLE_WRAP',
+  PALLET = 'PALLET',
+  CUSTOM = 'CUSTOM',
+}
