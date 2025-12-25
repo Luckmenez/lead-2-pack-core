@@ -7,11 +7,10 @@ export class UserMapper {
   static toDomain(schema: UserSchema): UserEntity {
     return UserEntity.reconstitute({
       id: schema.id,
-      name: schema.name,
       email: Email.create(schema.email),
       password: Password.fromHash(schema.password),
       role: schema.role,
-      companyName: schema.companyName,
+      profileData: schema.profile_data,
       createdAt: schema.createdAt,
       updatedAt: schema.updatedAt,
     });
@@ -20,11 +19,10 @@ export class UserMapper {
   static toPersistence(entity: UserEntity): Partial<UserSchema> {
     return {
       id: entity.id,
-      name: entity.name,
       email: entity.email.value,
       password: entity.password.value,
       role: entity.role,
-      companyName: entity.companyName,
+      profile_data: entity.profileData,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

@@ -6,6 +6,5 @@ export interface LoginDto {
 export interface LoginResult {
   userId: string;
   email: string;
-  name: string;
   role: string;
 }

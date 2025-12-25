@@ -1,0 +1,9 @@
+import { UserRole } from '@shared/types/enums/user-role.enum';
+import { ProfileData } from '@shared/types/interfaces/profile-data.interface';
+
+export interface AuthRegisterDto {
+  email: string;
+  password: string;
+  role: UserRole;
+  profileData: ProfileData;
+}

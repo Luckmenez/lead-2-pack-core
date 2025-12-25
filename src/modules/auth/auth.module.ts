@@ -15,10 +15,12 @@ import { LocalStrategy } from './infrastructure/strategies/local.strategy';
 
 // Presentation
 import { AuthController } from './presentation/controllers/auth.controller';
+import { RegisterUseCase } from './application/use-cases/register/register.use-case';
+import { CreateUserUseCase } from '@modules/users/application/use-cases/create-user/create-user.use-case';
 
 @Module({
   imports: [
-    UsersModule, // Import UsersModule to access UserRepository and BcryptPasswordHasherService
+    UsersModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -32,14 +34,7 @@ import { AuthController } from './presentation/controllers/auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    // Use Cases
-    LoginUseCase,
-
-    // Strategies
-    JwtStrategy,
-    LocalStrategy,
-  ],
+  providers: [LoginUseCase, RegisterUseCase, JwtStrategy, LocalStrategy, CreateUserUseCase],
   exports: [],
 })
 export class AuthModule {}

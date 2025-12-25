@@ -4,13 +4,13 @@ import { Email } from '@shared/domain/value-objects/email.vo';
 import { Password } from '../value-objects/password.vo';
 import { UserRole } from '@shared/types/enums/user-role.enum';
 import { DomainException, ValidationException } from '@shared/domain';
+import { ProfileData } from '@shared/types/interfaces/profile-data.interface';
 
 interface CreateUserProps {
-  name: string;
   email: Email;
   password: Password;
   role: UserRole;
-  companyName?: string;
+  profileData?: ProfileData;
 }
 
 interface UserProps extends CreateUserProps {
@@ -20,21 +20,19 @@ interface UserProps extends CreateUserProps {
 }
 
 export class UserEntity extends BaseEntity {
-  private _name: string;
   private _email: Email;
   private _password: Password;
   private _role: UserRole;
-  private _companyName?: string;
+  private _profileData?: ProfileData;
   private _createdAt: Date;
   private _updatedAt: Date;
 
   private constructor(props: UserProps) {
     super(props.id);
-    this._name = props.name;
     this._email = props.email;
     this._password = props.password;
     this._role = props.role;
-    this._companyName = props.companyName;
+    this._profileData = props.profileData;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
     this.validate();
@@ -55,31 +53,13 @@ export class UserEntity extends BaseEntity {
   }
 
   private validate(): void {
-    if (!this._name || this._name.trim().length === 0) {
-      throw new ValidationException('User name cannot be empty');
+    // Validação básica - validações específicas de profileData são feitas nos DTOs
+    if (!this._email) {
+      throw new ValidationException('User email cannot be empty');
     }
-
-    if (this._name.length < 3) {
-      throw new ValidationException('User name must be at least 3 characters long');
+    if (!this._password) {
+      throw new ValidationException('User password cannot be empty');
     }
-
-    if (this._name.length > 100) {
-      throw new ValidationException('User name cannot exceed 100 characters');
-    }
-
-    if (this._role === UserRole.SUPPLIER && !this._companyName) {
-      throw new DomainException('Supplier must have a company name');
-    }
-
-    if (this._companyName && this._companyName.trim().length === 0) {
-      throw new ValidationException('Company name cannot be empty if provided');
-    }
-  }
-
-  updateName(newName: string): void {
-    this._name = newName;
-    this._updatedAt = new Date();
-    this.validate();
   }
 
   updateEmail(newEmail: Email): void {
@@ -92,10 +72,9 @@ export class UserEntity extends BaseEntity {
     this._updatedAt = new Date();
   }
 
-  updateCompanyName(companyName: string): void {
-    this._companyName = companyName;
+  updateProfileData(profileData: ProfileData): void {
+    this._profileData = profileData;
     this._updatedAt = new Date();
-    this.validate();
   }
 
   isSupplier(): boolean {
@@ -106,12 +85,12 @@ export class UserEntity extends BaseEntity {
     return this._role === UserRole.CUSTOMER;
   }
 
-  isAdmin(): boolean {
-    return this._role === UserRole.ADMIN;
+  isSectorProfessional(): boolean {
+    return this._role === UserRole.SECTOR_PROFESSIONAL;
   }
 
-  get name(): string {
-    return this._name;
+  isAdmin(): boolean {
+    return this._role === UserRole.ADMIN;
   }
 
   get email(): Email {
@@ -126,8 +105,27 @@ export class UserEntity extends BaseEntity {
     return this._role;
   }
 
-  get companyName(): string | undefined {
-    return this._companyName;
+  get profileData(): ProfileData | undefined {
+    return this._profileData;
+  }
+
+  /**
+   * Type guard para garantir que o usuário tem profileData
+   * Útil em contextos onde profileData é obrigatório (ex: após registro)
+   */
+  hasProfileData(): this is UserEntity & { profileData: ProfileData } {
+    return this._profileData !== undefined;
+  }
+
+  /**
+   * Retorna profileData com garantia de tipo
+   * @throws {DomainException} se profileData não estiver definido
+   */
+  getRequiredProfileData(): ProfileData {
+    if (!this._profileData) {
+      throw new DomainException('ProfileData is required but not set');
+    }
+    return this._profileData;
   }
 
   get createdAt(): Date {

@@ -1,9 +1,9 @@
 import { UserRole } from '@shared/types/enums/user-role.enum';
+import { ProfileData } from '@shared/types/interfaces/profile-data.interface';
 
 export interface CreateUserDto {
-  name: string;
   email: string;
   password: string;
   role: UserRole;
-  companyName?: string;
+  profileData?: ProfileData;
 }

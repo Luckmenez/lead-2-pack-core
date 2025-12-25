@@ -10,17 +10,15 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  // Global prefix
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
+
   app.setGlobalPrefix(apiPrefix);
 
-  // CORS
   app.enableCors({
     origin: true, // Em produção, especificar origins permitidas
     credentials: true,
   });
 
-  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -32,7 +30,6 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger documentation
   if (configService.get('SWAGGER_ENABLED', 'true') === 'true') {
     const config = new DocumentBuilder()
       .setTitle(configService.get('SWAGGER_TITLE', 'Lead2Pack API'))
@@ -51,7 +48,7 @@ async function bootstrap() {
   }
 
   const port = configService.get('PORT', 3000);
-  await app.listen(port);
+  await app.listen(port || 3333);
 
   console.log(`🚀 Application running on http://localhost:${port}`);
   console.log(`📚 Swagger docs available at http://localhost:${port}/api/docs`);

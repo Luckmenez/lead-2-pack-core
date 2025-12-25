@@ -1,13 +1,19 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { UserRole } from '@shared/types/enums/user-role.enum';
+import { SectorSchema } from '@modules/sectors/infrastructure/persistence/sector.schema';
 
 @Entity('users')
 export class UserSchema {
   @PrimaryColumn('uuid')
   id: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  name: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
@@ -22,8 +28,16 @@ export class UserSchema {
   })
   role: UserRole;
 
-  @Column({ type: 'varchar', length: 200, nullable: true })
-  companyName?: string;
+  @Column({ type: 'jsonb', nullable: true })
+  profile_data?: Record<string, any>;
+
+  @ManyToMany(() => SectorSchema, { eager: true })
+  @JoinTable({
+    name: 'user_sectors',
+    joinColumn: { name: 'userId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'sectorId', referencedColumnName: 'id' },
+  })
+  sectors: SectorSchema[];
 
   @CreateDateColumn()
   createdAt: Date;

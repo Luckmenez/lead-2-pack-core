@@ -20,19 +20,14 @@ import { UsersController } from './presentation/controllers/users.controller';
   imports: [TypeOrmModule.forFeature([UserSchema])],
   controllers: [UsersController],
   providers: [
-    // Infrastructure Services
     BcryptPasswordHasherService,
-
-    // Repository
     {
       provide: IUserRepository,
       useClass: UserRepository,
     },
-
-    // Use Cases
     CreateUserUseCase,
     GetUserByIdUseCase,
   ],
-  exports: [IUserRepository, GetUserByIdUseCase, BcryptPasswordHasherService],
+  exports: [IUserRepository, GetUserByIdUseCase, BcryptPasswordHasherService, CreateUserUseCase],
 })
 export class UsersModule {}

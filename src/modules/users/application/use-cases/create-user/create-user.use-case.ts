@@ -18,6 +18,7 @@ export class CreateUserUseCase {
     const email = Email.create(dto.email);
 
     const emailExists = await this.userRepository.existsByEmail(email);
+
     if (emailExists) {
       throw new ConflictException('Email already registered');
     }
@@ -28,11 +29,10 @@ export class CreateUserUseCase {
     const password = Password.fromHash(hashedPassword);
 
     const user = UserEntity.create({
-      name: dto.name,
       email,
       password,
       role: dto.role,
-      companyName: dto.companyName,
+      profileData: dto.profileData,
     });
 
     return await this.userRepository.save(user);
