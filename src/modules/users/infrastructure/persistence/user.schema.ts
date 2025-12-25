@@ -28,8 +28,8 @@ export class UserSchema {
   })
   role: UserRole;
 
-  @Column({ type: 'jsonb', nullable: true })
-  profile_data?: Record<string, any>;
+  @Column({ type: 'jsonb' })
+  profile_data: Record<string, any>;
 
   @ManyToMany(() => SectorSchema, { eager: true })
   @JoinTable({

@@ -28,11 +28,10 @@ export class CreateUserRequestDto {
   @IsEnum(UserRole)
   role: UserRole;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description:
       'Profile data specific to the user role (customer, supplier, or sector professional)',
   })
-  @IsOptional()
   @IsObject()
-  profileData?: Record<string, any>;
+  profileData: Record<string, any>;
 }

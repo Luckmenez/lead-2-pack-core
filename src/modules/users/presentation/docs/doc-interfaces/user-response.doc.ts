@@ -22,7 +22,7 @@ export class UserResponseDoc {
   @ApiProperty({
     description: 'Papel do usuário no sistema',
     example: 'CUSTOMER',
-    enum: ['CUSTOMER', 'SUPPLIER', 'ADMIN'],
+    enum: ['CUSTOMER', 'SUPPLIER', 'SECTOR_PROFESSIONAL'],
   })
   role: string;
 

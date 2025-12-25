@@ -10,7 +10,7 @@ interface CreateUserProps {
   email: Email;
   password: Password;
   role: UserRole;
-  profileData?: ProfileData;
+  profileData: ProfileData;
 }
 
 interface UserProps extends CreateUserProps {
@@ -23,7 +23,7 @@ export class UserEntity extends BaseEntity {
   private _email: Email;
   private _password: Password;
   private _role: UserRole;
-  private _profileData?: ProfileData;
+  private _profileData: ProfileData;
   private _createdAt: Date;
   private _updatedAt: Date;
 
@@ -53,12 +53,14 @@ export class UserEntity extends BaseEntity {
   }
 
   private validate(): void {
-    // Validação básica - validações específicas de profileData são feitas nos DTOs
     if (!this._email) {
       throw new ValidationException('User email cannot be empty');
     }
     if (!this._password) {
       throw new ValidationException('User password cannot be empty');
+    }
+    if (!this._profileData) {
+      throw new ValidationException('User profileData cannot be empty');
     }
   }
 
@@ -89,10 +91,6 @@ export class UserEntity extends BaseEntity {
     return this._role === UserRole.SECTOR_PROFESSIONAL;
   }
 
-  isAdmin(): boolean {
-    return this._role === UserRole.ADMIN;
-  }
-
   get email(): Email {
     return this._email;
   }
@@ -105,26 +103,7 @@ export class UserEntity extends BaseEntity {
     return this._role;
   }
 
-  get profileData(): ProfileData | undefined {
-    return this._profileData;
-  }
-
-  /**
-   * Type guard para garantir que o usuário tem profileData
-   * Útil em contextos onde profileData é obrigatório (ex: após registro)
-   */
-  hasProfileData(): this is UserEntity & { profileData: ProfileData } {
-    return this._profileData !== undefined;
-  }
-
-  /**
-   * Retorna profileData com garantia de tipo
-   * @throws {DomainException} se profileData não estiver definido
-   */
-  getRequiredProfileData(): ProfileData {
-    if (!this._profileData) {
-      throw new DomainException('ProfileData is required but not set');
-    }
+  get profileData(): ProfileData {
     return this._profileData;
   }
 

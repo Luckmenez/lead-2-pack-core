@@ -12,7 +12,6 @@ export class ValidateProfileDataPipe implements PipeTransform {
     [UserRole.CUSTOMER]: CustomerProfileDataDto,
     [UserRole.SUPPLIER]: SupplierProfileDataDto,
     [UserRole.SECTOR_PROFESSIONAL]: SectorProfessionalProfileDataDto,
-    [UserRole.ADMIN]: null,
   };
 
   async transform(value: any) {

@@ -5,5 +5,5 @@ export interface CreateUserDto {
   email: string;
   password: string;
   role: UserRole;
-  profileData?: ProfileData;
+  profileData: ProfileData;
 }

@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@core/database/database.module';
 import { UsersModule } from '@modules/users/users.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { CollaboratorsModule } from '@modules/collaborators/collaborators.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     // Feature modules
     UsersModule,
     AuthModule,
+    CollaboratorsModule,
   ],
   controllers: [],
   providers: [],
