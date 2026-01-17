@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserSchema } from './infrastructure/persistence/user.schema';
 import { UserRepository } from './infrastructure/persistence/user.repository';
 import { BcryptPasswordHasherService } from './infrastructure/services/bcrypt-password-hasher.service';
+import { SectorSchema } from '../sectors/infrastructure/persistence/sector.schema';
 
 // Domain
 import { IUserRepository } from './domain/repositories/user-repository.interface';
@@ -16,8 +17,11 @@ import { GetUserByIdUseCase } from './application/use-cases/get-user-by-id/get-u
 // Presentation
 import { UsersController } from './presentation/controllers/users.controller';
 
+// External Modules
+import { sectorsModule } from '../sectors/sectors.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([UserSchema])],
+  imports: [TypeOrmModule.forFeature([UserSchema, SectorSchema]), sectorsModule],
   controllers: [UsersController],
   providers: [
     BcryptPasswordHasherService,

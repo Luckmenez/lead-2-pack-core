@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { ISectorRepository } from '../../domain/repositories/sector-repository.interface';
 import { SectorEntity } from '../../domain/entities/sector.entity';
 import { SectorSchema } from './sector.schema';
@@ -16,6 +16,16 @@ export class sectorsRepository implements ISectorRepository {
   async findById(id: string): Promise<SectorEntity | null> {
     const schema = await this.repository.findOne({ where: { id } });
     return schema ? SectorMapper.toDomain(schema) : null;
+  }
+
+  async findByIds(ids: string[]): Promise<SectorEntity[]> {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+    const schemas = await this.repository.find({
+      where: { id: In(ids) },
+    });
+    return schemas.map((schema) => SectorMapper.toDomain(schema));
   }
 
   async save(entity: SectorEntity): Promise<SectorEntity> {

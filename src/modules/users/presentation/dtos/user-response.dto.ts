@@ -15,6 +15,13 @@ export class UserResponseDto {
   @ApiPropertyOptional()
   profileData?: Record<string, any>;
 
+  @ApiPropertyOptional({
+    description: 'Array of sector IDs for SUPPLIER and SECTOR_PROFESSIONAL',
+    example: ['550e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002'],
+    type: [String],
+  })
+  sectorIds?: string[];
+
   @ApiProperty({ example: '2025-12-21T19:00:00.000Z' })
   createdAt: Date;
 
@@ -27,6 +34,7 @@ export class UserResponseDto {
       email: entity.email.value,
       role: entity.role,
       profileData: entity.profileData,
+      sectorIds: entity.sectorIds,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

@@ -16,7 +16,6 @@ import { LocalStrategy } from './infrastructure/strategies/local.strategy';
 // Presentation
 import { AuthController } from './presentation/controllers/auth.controller';
 import { RegisterUseCase } from './application/use-cases/register/register.use-case';
-import { CreateUserUseCase } from '@modules/users/application/use-cases/create-user/create-user.use-case';
 
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { CreateUserUseCase } from '@modules/users/application/use-cases/create-u
     }),
   ],
   controllers: [AuthController],
-  providers: [LoginUseCase, RegisterUseCase, JwtStrategy, LocalStrategy, CreateUserUseCase],
+  providers: [LoginUseCase, RegisterUseCase, JwtStrategy, LocalStrategy],
   exports: [],
 })
 export class AuthModule {}

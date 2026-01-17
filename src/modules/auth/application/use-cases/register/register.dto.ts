@@ -6,4 +6,5 @@ export interface AuthRegisterDto {
   password: string;
   role: UserRole;
   profileData: ProfileData;
+  sectorIds?: string[];
 }

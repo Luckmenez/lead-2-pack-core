@@ -6,6 +6,11 @@ import {
   MinLength,
   MaxLength,
   IsObject,
+  IsArray,
+  ArrayMinSize,
+  ArrayMaxSize,
+  IsUUID,
+  ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserRole } from '@shared/types/enums/user-role.enum';
@@ -34,4 +39,21 @@ export class CreateUserRequestDto {
   })
   @IsObject()
   profileData: Record<string, any>;
+
+  @ApiPropertyOptional({
+    description:
+      'Array of sector IDs (UUIDs). Required for SUPPLIER and SECTOR_PROFESSIONAL (1-5 sectors). Not applicable for CUSTOMER.',
+    example: [
+      '550e8400-e29b-41d4-a716-446655440001',
+      '550e8400-e29b-41d4-a716-446655440002',
+    ],
+    type: [String],
+  })
+  @ValidateIf((o) => o.role === UserRole.SUPPLIER || o.role === UserRole.SECTOR_PROFESSIONAL)
+  @IsArray()
+  @ArrayMinSize(1, { message: 'At least 1 sector is required for SUPPLIER and SECTOR_PROFESSIONAL' })
+  @ArrayMaxSize(5, { message: 'Maximum 5 sectors allowed' })
+  @IsUUID('4', { each: true, message: 'Each sectorId must be a valid UUID' })
+  @ValidateIf((o) => o.role !== UserRole.CUSTOMER)
+  sectorIds?: string[];
 }

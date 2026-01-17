@@ -11,6 +11,7 @@ export class UserMapper {
       password: Password.fromHash(schema.password),
       role: schema.role,
       profileData: schema.profile_data,
+      sectorIds: schema.sectors?.map((sector) => sector.id) || undefined,
       createdAt: schema.createdAt,
       updatedAt: schema.updatedAt,
     });
@@ -25,6 +26,7 @@ export class UserMapper {
       profile_data: entity.profileData,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
+      // Note: sectors are handled in the repository layer
     };
   }
 }

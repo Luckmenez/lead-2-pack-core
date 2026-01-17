@@ -73,6 +73,7 @@ export class AuthController {
         email: registerResult.email.value,
         role: registerResult.role,
         profileData: registerResult.profileData,
+        sectorIds: registerResult.sectorIds,
         accessToken,
       },
       metadata: {

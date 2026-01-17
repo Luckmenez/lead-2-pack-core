@@ -12,6 +12,7 @@ export class RegisterUseCase {
       password: dto.password,
       role: dto.role,
       profileData: dto.profileData,
+      sectorIds: dto.sectorIds,
     });
 
     return user;

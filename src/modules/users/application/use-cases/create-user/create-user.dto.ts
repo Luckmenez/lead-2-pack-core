@@ -6,4 +6,5 @@ export interface CreateUserDto {
   password: string;
   role: UserRole;
   profileData: ProfileData;
+  sectorIds?: string[];
 }

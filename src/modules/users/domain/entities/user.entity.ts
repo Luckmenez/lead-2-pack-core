@@ -3,7 +3,7 @@ import { BaseEntity } from '@shared/domain/base-entity';
 import { Email } from '@shared/domain/value-objects/email.vo';
 import { Password } from '../value-objects/password.vo';
 import { UserRole } from '@shared/types/enums/user-role.enum';
-import { DomainException, ValidationException } from '@shared/domain';
+import { ValidationException } from '@shared/domain';
 import { ProfileData } from '@shared/types/interfaces/profile-data.interface';
 
 interface CreateUserProps {
@@ -11,6 +11,7 @@ interface CreateUserProps {
   password: Password;
   role: UserRole;
   profileData: ProfileData;
+  sectorIds?: string[];
 }
 
 interface UserProps extends CreateUserProps {
@@ -24,6 +25,7 @@ export class UserEntity extends BaseEntity {
   private _password: Password;
   private _role: UserRole;
   private _profileData: ProfileData;
+  private _sectorIds?: string[];
   private _createdAt: Date;
   private _updatedAt: Date;
 
@@ -33,6 +35,7 @@ export class UserEntity extends BaseEntity {
     this._password = props.password;
     this._role = props.role;
     this._profileData = props.profileData;
+    this._sectorIds = props.sectorIds;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
     this.validate();
@@ -105,6 +108,10 @@ export class UserEntity extends BaseEntity {
 
   get profileData(): ProfileData {
     return this._profileData;
+  }
+
+  get sectorIds(): string[] | undefined {
+    return this._sectorIds;
   }
 
   get createdAt(): Date {

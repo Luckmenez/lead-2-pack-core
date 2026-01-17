@@ -19,13 +19,10 @@ import { sectorsController } from './presentation/controllers/sectors.controller
   imports: [TypeOrmModule.forFeature([SectorSchema])],
   controllers: [sectorsController],
   providers: [
-    // Repository
     {
       provide: ISectorRepository,
       useClass: sectorsRepository,
     },
-
-    // Use Cases
     CreateSectorUseCase,
     GetsectorsByIdUseCase,
   ],

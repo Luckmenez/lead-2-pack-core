@@ -18,6 +18,7 @@ export class AuthResponseMapper {
       email: entity.email.value,
       role: entity.role,
       profileData: entity.profileData,
+      sectorIds: entity.sectorIds,
       accessToken,
     };
   }

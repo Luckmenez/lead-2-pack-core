@@ -88,7 +88,12 @@ Content-Type: application/json
     "whatsapp": "+55 21 97654-3210",
     "contactName": "João da Silva",
     "address": "Rua dos Fornecedores, 500 - Rio de Janeiro, RJ"
-  }
+  },
+  "sectorIds": [
+    "550e8400-e29b-41d4-a716-446655440001",
+    "550e8400-e29b-41d4-a716-446655440002",
+    "550e8400-e29b-41d4-a716-446655440003"
+  ]
 }
 ```
 
@@ -110,6 +115,14 @@ Content-Type: application/json
 |-------|------|-----------|
 | `address` | string | Endereço completo |
 
+### Campo sectorIds (Raiz do Payload)
+
+| Campo | Tipo | Descrição | Validação |
+|-------|------|-----------|-----------|
+| `sectorIds` | string[] | Array de IDs dos setores de atuação | Mínimo 1, máximo 5 UUIDs |
+
+⚠️ **IMPORTANTE**: O campo `sectorIds` é obrigatório para SUPPLIER e deve conter entre 1 e 5 IDs de setores válidos. Para obter os IDs disponíveis, consulte o endpoint `GET /sectors`.
+
 ---
 
 ## 3. SECTOR_PROFESSIONAL (Profissional de Setor)
@@ -130,7 +143,10 @@ Content-Type: application/json
     "corporateEmail": "contato@jceletricista.com.br",
     "whatsapp": "+55 11 99876-5432",
     "address": "Rua das Flores, 123 - Guarulhos, SP"
-  }
+  },
+  "sectorIds": [
+    "550e8400-e29b-41d4-a716-446655440001"
+  ]
 }
 ```
 
@@ -150,6 +166,14 @@ Content-Type: application/json
 | `tradeName` | string | Nome comercial/fantasia |
 | `address` | string | Endereço completo |
 
+### Campo sectorIds (Raiz do Payload)
+
+| Campo | Tipo | Descrição | Validação |
+|-------|------|-----------|-----------|
+| `sectorIds` | string[] | Array de IDs dos setores de atuação | Mínimo 1, máximo 5 UUIDs |
+
+⚠️ **IMPORTANTE**: O campo `sectorIds` é obrigatório para SECTOR_PROFESSIONAL e deve conter entre 1 e 5 IDs de setores válidos. Para obter os IDs disponíveis, consulte o endpoint `GET /sectors`.
+
 ---
 
 ## 📝 Comparação entre Roles
@@ -163,6 +187,90 @@ Content-Type: application/json
 | **Nome Completo** | ✅ companyFullName | ✅ companyFullName | ✅ fullName |
 | **Contato Principal** | ❌ Não | ✅ contactName | ✅ fullName |
 | **Website** | ⚠️ Opcional | ❌ Não | ❌ Não |
+| **Setores (sectorIds)** | ❌ Não | ✅ Obrigatório (1-5) | ✅ Obrigatório (1-5) |
+
+---
+
+## 🏢 Gerenciamento de Setores
+
+### O que são Setores?
+
+Setores representam as áreas de atuação dos fornecedores e profissionais (ex: elétrica, hidráulica, construção civil, etc.).
+
+### Quem precisa de Setores?
+
+- ✅ **SUPPLIER**: Deve informar em quais setores a empresa atua (1-5 setores)
+- ✅ **SECTOR_PROFESSIONAL**: Deve informar em quais setores o profissional trabalha (1-5 setores)
+- ❌ **CUSTOMER**: Não precisa informar setores (clientes buscam fornecedores)
+
+### Como obter os IDs dos Setores?
+
+Antes de registrar um SUPPLIER ou SECTOR_PROFESSIONAL, você precisa consultar os setores disponíveis:
+
+#### Endpoint: Listar Setores
+
+```
+GET /sectors
+```
+
+#### Resposta de Exemplo
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Elétrica",
+      "description": "Serviços e materiais elétricos",
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "name": "Hidráulica",
+      "description": "Serviços e materiais hidráulicos",
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "name": "Construção Civil",
+      "description": "Materiais e serviços de construção civil",
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z"
+    }
+  ],
+  "metadata": {
+    "timestamp": "2024-12-25T15:30:00.000Z"
+  }
+}
+```
+
+### Fluxo Completo: Registrar SUPPLIER
+
+1. **Buscar setores disponíveis**:
+   ```bash
+   curl -X GET http://localhost:3000/sectors
+   ```
+
+2. **Copiar os IDs dos setores desejados** (ex: Elétrica, Hidráulica)
+
+3. **Registrar o fornecedor** incluindo `sectorIds`:
+   ```bash
+   curl -X POST http://localhost:3000/auth/register \
+     -H "Content-Type: application/json" \
+     -d '{
+       "email": "vendas@fornecedor.com",
+       "password": "Senha123!",
+       "role": "SUPPLIER",
+       "profileData": { ... },
+       "sectorIds": [
+         "550e8400-e29b-41d4-a716-446655440001",
+         "550e8400-e29b-41d4-a716-446655440002"
+       ]
+     }'
+   ```
 
 ---
 
@@ -364,6 +472,53 @@ Content-Type: application/json
 }
 ```
 
+### 7. sectorIds ausente para SUPPLIER/SECTOR_PROFESSIONAL (400 Bad Request)
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "sectorIds must be an array",
+    "sectorIds should not be empty"
+  ],
+  "error": "Bad Request"
+}
+```
+
+### 8. sectorIds com mais de 5 setores (400 Bad Request)
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "sectorIds must contain no more than 5 elements"
+  ],
+  "error": "Bad Request"
+}
+```
+
+### 9. sectorIds com IDs inválidos (400 Bad Request)
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "each value in sectorIds must be a UUID"
+  ],
+  "error": "Bad Request"
+}
+```
+
+### 10. Setor não encontrado (404 Not Found)
+
+```json
+{
+  "statusCode": 404,
+  "message": "Sector with ID '550e8400-e29b-41d4-a716-446655440099' not found",
+  "error": "Not Found"
+}
+```
+
 ---
 
 ## 🧪 Testando com cURL
@@ -408,7 +563,12 @@ curl -X POST http://localhost:3000/auth/register \
       "whatsapp": "+55 21 97654-3210",
       "contactName": "João da Silva",
       "address": "Rua dos Fornecedores, 500 - Rio de Janeiro, RJ"
-    }
+    },
+    "sectorIds": [
+      "550e8400-e29b-41d4-a716-446655440001",
+      "550e8400-e29b-41d4-a716-446655440002",
+      "550e8400-e29b-41d4-a716-446655440003"
+    ]
   }'
 ```
 
@@ -428,7 +588,10 @@ curl -X POST http://localhost:3000/auth/register \
       "corporateEmail": "contato@jceletricista.com.br",
       "whatsapp": "+55 11 99876-5432",
       "address": "Rua das Flores, 123 - Guarulhos, SP"
-    }
+    },
+    "sectorIds": [
+      "550e8400-e29b-41d4-a716-446655440001"
+    ]
   }'
 ```
 
@@ -505,6 +668,16 @@ A senha deve ter:
 
 ⚠️ **IMPORTANTE**: Desde a Fase 4, todos os usuários **DEVEM** ter `profileData`. Não é mais possível criar usuários sem esse campo.
 
+### SectorIds Obrigatório para SUPPLIER e SECTOR_PROFESSIONAL
+
+⚠️ **IMPORTANTE**:
+- **SUPPLIER** e **SECTOR_PROFESSIONAL** DEVEM informar `sectorIds`
+- Mínimo: 1 setor
+- Máximo: 5 setores
+- Todos os IDs devem ser UUIDs válidos
+- Todos os setores devem existir no banco de dados
+- **CUSTOMER** NÃO usa `sectorIds`
+
 ### Separação User vs Collaborator
 
 - **Users** (CUSTOMER, SUPPLIER, SECTOR_PROFESSIONAL):
@@ -532,7 +705,32 @@ A senha deve ter:
 - `POST /admin/collaborators` - Criar collaborator (protegido, apenas admins)
 - `GET /admin/collaborators/:id` - Buscar collaborator (protegido)
 
+### Sectors
+
+- `GET /sectors` - Listar todos os setores disponíveis
+- `GET /sectors/:id` - Buscar setor por ID
+- `POST /sectors` - Criar novo setor (protegido, apenas admins)
+- `PATCH /sectors/:id` - Atualizar setor (protegido, apenas admins)
+- `DELETE /sectors/:id` - Deletar setor (protegido, apenas admins)
+
 ---
 
 **Última atualização**: 25 de Dezembro de 2025
-**Versão do documento**: 1.0
+**Versão do documento**: 1.1
+
+---
+
+## 📝 Changelog
+
+### v1.1 (25/12/2025)
+- ✅ Adicionado campo `sectorIds` para SUPPLIER e SECTOR_PROFESSIONAL
+- ✅ Adicionada seção "Gerenciamento de Setores"
+- ✅ Adicionados exemplos de erros relacionados a `sectorIds`
+- ✅ Atualizada tabela comparativa com informação de setores
+- ✅ Adicionados endpoints de setores
+
+### v1.0 (25/12/2025)
+- ✅ Versão inicial com exemplos de CUSTOMER, SUPPLIER e SECTOR_PROFESSIONAL
+- ✅ Exemplos de payloads completos
+- ✅ Comandos cURL
+- ✅ Respostas de erro
