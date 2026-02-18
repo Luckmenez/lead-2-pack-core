@@ -5,11 +5,29 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model Comprador {
+  id               String   @id @default(uuid())
+  cpf              String   @unique 
+  senhaHash        String   @map("senha_hash")
+  nomeCompleto     String   @map("nome_completo")
+  telefonePessoal  String   @map("telefone_pessoal")
+  emailPessoal     String   @map("email_pessoal")
+  cnpj             String
+  razaoSocial      String   @map("razao_social")
+  nomeFantasia     String?  @map("nome_fantasia")
+  website          String?
+  redeSocial       String?
+  emailComercial   String   @map("email_comercial")
+  telefoneComercial String  @map("telefone_comercial")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("compradores")
 }
