@@ -10,11 +10,12 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+ 
 }
 
 model Comprador {
   id               String   @id @default(uuid())
-  cpf              String   @unique 
+  cpf              String   @unique
   senhaHash        String   @map("senha_hash")
   nomeCompleto     String   @map("nome_completo")
   telefonePessoal  String   @map("telefone_pessoal")
@@ -30,4 +31,30 @@ model Comprador {
   updatedAt        DateTime @updatedAt @map("updated_at")
 
   @@map("compradores")
+}
+
+model Fornecedor {
+  id                    String   @id @default(uuid())
+  cpf                   String   @unique
+  senhaHash             String   @map("senha_hash")
+  nomeCompleto          String   @map("nome_completo")
+  telefonePessoal       String   @map("telefone_pessoal")
+  emailPessoal          String   @map("email_pessoal")
+  cnpj                  String
+  razaoSocial           String   @map("razao_social")
+  nomeFantasia          String   @map("nome_fantasia")
+  website               String?
+  redeSocial            String?
+  emailComercial        String   @map("email_comercial")
+  telefoneComercial     String   @map("telefone_comercial")
+  categoriasProdutos    Json     @map("categorias_produtos")
+  materiais             Json
+  servicos              Json
+  setores               Json
+  descricaoInstitucional String  @map("descricao_institucional")
+  formaPagamento        String   @map("forma_pagamento")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("fornecedores")
 }
