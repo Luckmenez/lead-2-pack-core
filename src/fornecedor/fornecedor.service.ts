@@ -1,5 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+const CATEGORIAS_PRODUTOS = [
+  'Embalagens Primárias',
+  'Embalagens Secundárias',
+  'Embalagens Terciárias',
+  'Acessórios e Componentes',
+  'Etiquetas e Rótulos',
+  'Embalagens Sustentáveis/Recicladas',
+];
+
+type FornecedorListagem = {
+  id: string;
+  nomeFantasia: string;
+  descricaoInstitucional: string;
+  categoriasProdutos: unknown;
+  materiais: unknown;
+  servicos: unknown;
+  setores: unknown;
+};
 
 @Injectable()
 export class FornecedorService {
@@ -67,5 +87,101 @@ export class FornecedorService {
         formaPagamento: data.formaPagamento,
       },
     });
+  }
+
+  async findAll(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    categoria?: string;
+  }) {
+    const page = Math.max(1, params.page ?? 1);
+    const limit = Math.min(50, Math.max(1, params.limit ?? 10));
+    const skip = (page - 1) * limit;
+    const search = params.search?.trim();
+    const categoria =
+      params.categoria?.trim() &&
+      CATEGORIAS_PRODUTOS.includes(params.categoria.trim())
+        ? params.categoria.trim()
+        : undefined;
+
+    if (categoria) {
+      const catJson = JSON.stringify([categoria]);
+      const searchPattern = search ? `%${search}%` : null;
+
+      const [rows, countRows] = await Promise.all([
+        this.prisma.$queryRaw<FornecedorListagem[]>`
+          SELECT id, nome_fantasia as "nomeFantasia",
+            descricao_institucional as "descricaoInstitucional",
+            categorias_produtos as "categoriasProdutos",
+            materiais, servicos, setores
+          FROM fornecedores
+          WHERE categorias_produtos::jsonb @> ${catJson}::jsonb
+          ${
+            searchPattern
+              ? Prisma.sql`AND (nome_fantasia ILIKE ${searchPattern} OR descricao_institucional ILIKE ${searchPattern} OR razao_social ILIKE ${searchPattern})`
+              : Prisma.empty
+          }
+          ORDER BY nome_fantasia ASC
+          LIMIT ${limit}
+          OFFSET ${skip}
+        `,
+        this.prisma.$queryRaw<[{ count: bigint }]>`
+          SELECT COUNT(*)::bigint as count
+          FROM fornecedores
+          WHERE categorias_produtos::jsonb @> ${catJson}::jsonb
+          ${
+            searchPattern
+              ? Prisma.sql`AND (nome_fantasia ILIKE ${searchPattern} OR descricao_institucional ILIKE ${searchPattern} OR razao_social ILIKE ${searchPattern})`
+              : Prisma.empty
+          }
+        `,
+      ]);
+
+      const total = Number(countRows[0]?.count ?? 0);
+      return {
+        data: rows,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      };
+    }
+
+    const where: Prisma.FornecedorWhereInput = {};
+    if (search) {
+      where.OR = [
+        { nomeFantasia: { contains: search, mode: 'insensitive' } },
+        { descricaoInstitucional: { contains: search, mode: 'insensitive' } },
+        { razaoSocial: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [fornecedores, total] = await Promise.all([
+      this.prisma.fornecedor.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { nomeFantasia: 'asc' },
+        select: {
+          id: true,
+          nomeFantasia: true,
+          descricaoInstitucional: true,
+          categoriasProdutos: true,
+          materiais: true,
+          servicos: true,
+          setores: true,
+        },
+      }),
+      this.prisma.fornecedor.count({ where }),
+    ]);
+
+    return {
+      data: fornecedores,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }
