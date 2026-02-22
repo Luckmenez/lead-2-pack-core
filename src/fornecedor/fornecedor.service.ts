@@ -19,6 +19,8 @@ type FornecedorListagem = {
   materiais: unknown;
   servicos: unknown;
   setores: unknown;
+  cidade: string;
+  estado: string;
 };
 
 @Injectable()
@@ -53,6 +55,8 @@ export class FornecedorService {
     setores: string[];
     descricaoInstitucional: string;
     formaPagamento: string;
+    cidade: string;
+    estado: string;
     website?: string;
     redeSocial?: string;
   }) {
@@ -85,6 +89,8 @@ export class FornecedorService {
         setores: data.setores,
         descricaoInstitucional: data.descricaoInstitucional,
         formaPagamento: data.formaPagamento,
+        cidade: data.cidade,
+        estado: data.estado,
       },
     });
   }
@@ -114,7 +120,7 @@ export class FornecedorService {
           SELECT id, nome_fantasia as "nomeFantasia",
             descricao_institucional as "descricaoInstitucional",
             categorias_produtos as "categoriasProdutos",
-            materiais, servicos, setores
+            materiais, servicos, setores, cidade, estado
           FROM fornecedores
           WHERE categorias_produtos::jsonb @> ${catJson}::jsonb
           ${
@@ -171,6 +177,8 @@ export class FornecedorService {
           materiais: true,
           servicos: true,
           setores: true,
+          cidade: true,
+          estado: true,
         },
       }),
       this.prisma.fornecedor.count({ where }),

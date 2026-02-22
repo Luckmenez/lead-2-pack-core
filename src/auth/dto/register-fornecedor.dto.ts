@@ -84,6 +84,15 @@ export class RegisterFornecedorDto {
   })
   formaPagamento: 'cartao' | 'boleto' | 'pix';
 
+  @IsNotEmpty({ message: 'Cidade é obrigatória' })
+  @IsString()
+  cidade: string;
+
+  @IsNotEmpty({ message: 'Estado é obrigatório' })
+  @IsString()
+  @MinLength(2, { message: 'Selecione o estado' })
+  estado: string;
+
   @IsOptional()
   @IsString()
   website?: string;

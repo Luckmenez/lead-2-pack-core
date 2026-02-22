@@ -53,6 +53,8 @@ model Fornecedor {
   setores               Json
   descricaoInstitucional String  @map("descricao_institucional")
   formaPagamento        String   @map("forma_pagamento")
+  cidade                String   @map("cidade")
+  estado                String   @map("estado")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
 

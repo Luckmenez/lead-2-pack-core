@@ -97,6 +97,8 @@ export class AuthService {
     setores: string[];
     descricaoInstitucional: string;
     formaPagamento: string;
+    cidade: string;
+    estado: string;
     website?: string;
     redeSocial?: string;
   }) {
