@@ -1,29 +1,8 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
-const SENHA_REGEX =
-  /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
+const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export class RegisterCompradorDto {
-  @IsNotEmpty({ message: 'CPF é obrigatório' })
-  @IsString()
-  cpf: string;
-
-  @IsNotEmpty({ message: 'Senha é obrigatória' })
-  @IsString()
-  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
-  @Matches(SENHA_REGEX, {
-    message:
-      'Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um caractere especial',
-  })
-  senha: string;
-
   @IsNotEmpty({ message: 'Nome completo é obrigatório' })
   @IsString()
   nomeCompleto: string;
@@ -32,9 +11,13 @@ export class RegisterCompradorDto {
   @IsString()
   telefonePessoal: string;
 
-  @IsNotEmpty({ message: 'E-mail pessoal é obrigatório' })
-  @IsEmail()
-  emailPessoal: string;
+  @IsNotEmpty({ message: 'WhatsApp pessoal é obrigatório' })
+  @IsString()
+  whatsappPessoal: string;
+
+  @IsNotEmpty({ message: 'E-mail é obrigatório' })
+  @IsEmail({}, { message: 'E-mail inválido' })
+  email: string;
 
   @IsNotEmpty({ message: 'CNPJ é obrigatório' })
   @IsString()
@@ -44,17 +27,17 @@ export class RegisterCompradorDto {
   @IsString()
   razaoSocial: string;
 
-  @IsNotEmpty({ message: 'E-mail comercial é obrigatório' })
-  @IsEmail()
-  emailComercial: string;
+  @IsOptional()
+  @IsString()
+  nomeFantasia?: string;
 
   @IsNotEmpty({ message: 'Telefone comercial é obrigatório' })
   @IsString()
   telefoneComercial: string;
 
-  @IsOptional()
+  @IsNotEmpty({ message: 'WhatsApp comercial é obrigatório' })
   @IsString()
-  nomeFantasia?: string;
+  whatsappComercial: string;
 
   @IsOptional()
   @IsString()
@@ -63,4 +46,12 @@ export class RegisterCompradorDto {
   @IsOptional()
   @IsString()
   redeSocial?: string;
+
+  @IsNotEmpty({ message: 'Senha é obrigatória' })
+  @IsString()
+  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
+  @Matches(SENHA_REGEX, {
+    message: 'Senha deve ter uma letra maiúscula e um caractere especial',
+  })
+  senha: string;
 }
