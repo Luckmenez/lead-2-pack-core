@@ -14,49 +14,72 @@ datasource db {
 }
 
 model Comprador {
-  id               String   @id @default(uuid())
-  cpf              String   @unique
-  senhaHash        String   @map("senha_hash")
-  nomeCompleto     String   @map("nome_completo")
-  telefonePessoal  String   @map("telefone_pessoal")
-  emailPessoal     String   @map("email_pessoal")
-  cnpj             String
-  razaoSocial      String   @map("razao_social")
-  nomeFantasia     String?  @map("nome_fantasia")
-  website          String?
-  redeSocial       String?
-  emailComercial   String   @map("email_comercial")
-  telefoneComercial String  @map("telefone_comercial")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  email             String   @unique
+  senhaHash         String   @map("senha_hash")
+  nomeCompleto      String   @map("nome_completo")
+  telefonePessoal   String   @map("telefone_pessoal")
+  whatsappPessoal   String   @map("whatsapp_pessoal")
+  cnpj              String
+  razaoSocial       String   @map("razao_social")
+  nomeFantasia      String?  @map("nome_fantasia")
+  telefoneComercial String   @map("telefone_comercial")
+  whatsappComercial String   @map("whatsapp_comercial")
+  website           String?
+  redeSocial        String?  @map("rede_social")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   @@map("compradores")
 }
 
 model Fornecedor {
   id                    String   @id @default(uuid())
-  cpf                   String   @unique
+  email                 String   @unique
   senhaHash             String   @map("senha_hash")
-  nomeCompleto          String   @map("nome_completo")
-  telefonePessoal       String   @map("telefone_pessoal")
-  emailPessoal          String   @map("email_pessoal")
+  telefone              String
+  whatsapp              String
   cnpj                  String
   razaoSocial           String   @map("razao_social")
   nomeFantasia          String   @map("nome_fantasia")
-  website               String?
-  redeSocial            String?
-  emailComercial        String   @map("email_comercial")
-  telefoneComercial     String   @map("telefone_comercial")
+  website               String
+  redeSocial            String   @map("rede_social")
+  cidade                String
+  estado                String
+  tipoInscricao         String   @map("tipo_inscricao")
+  numeroInscricao       String   @map("numero_inscricao")
+  tipoEmpresa           String   @map("tipo_empresa")
   categoriasProdutos    Json     @map("categorias_produtos")
   materiais             Json
   servicos              Json
   setores               Json
   descricaoInstitucional String  @map("descricao_institucional")
   formaPagamento        String   @map("forma_pagamento")
-  cidade                String   @map("cidade")
-  estado                String   @map("estado")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
 
   @@map("fornecedores")
+}
+
+model Profissional {
+  id                    String   @id @default(uuid())
+  cpf                   String   @unique
+  senhaHash             String   @map("senha_hash")
+  nomeCompleto          String   @map("nome_completo")
+  apelido               String
+  telefonePessoal       String   @map("telefone_pessoal")
+  whatsappPessoal       String   @map("whatsapp_pessoal")
+  emailPessoal          String   @map("email_pessoal")
+  website               String?
+  redeSocial            String?  @map("rede_social")
+  categoriasProdutos    Json     @map("categorias_produtos")
+  materiais             Json
+  servicos              Json
+  setores               Json
+  descricaoInstitucional String  @map("descricao_institucional")
+  formaPagamento        String   @map("forma_pagamento")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("profissionais")
 }

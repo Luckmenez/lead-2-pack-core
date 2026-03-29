@@ -3,59 +3,68 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Matches,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 
 const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export class RegisterFornecedorDto {
-  @IsNotEmpty({ message: 'CPF é obrigatório' })
+  @IsNotEmpty({ message: 'Telefone é obrigatório' })
   @IsString()
-  cpf: string;
+  telefone: string;
 
-  @IsNotEmpty({ message: 'Senha é obrigatória' })
+  @IsNotEmpty({ message: 'WhatsApp é obrigatório' })
   @IsString()
-  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
-  @Matches(SENHA_REGEX, {
-    message:
-      'Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um caractere especial',
-  })
-  senha: string;
+  whatsapp: string;
 
-  @IsNotEmpty()
-  @IsString()
-  nomeCompleto: string;
+  @IsNotEmpty({ message: 'E-mail é obrigatório' })
+  @IsEmail({}, { message: 'E-mail inválido' })
+  email: string;
 
-  @IsNotEmpty()
-  @IsString()
-  telefonePessoal: string;
-
-  @IsNotEmpty()
-  @IsEmail()
-  emailPessoal: string;
-
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'CNPJ é obrigatório' })
   @IsString()
   cnpj: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Razão social é obrigatória' })
   @IsString()
   razaoSocial: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Nome fantasia é obrigatório' })
   @IsString()
   nomeFantasia: string;
 
-  @IsNotEmpty()
-  @IsEmail()
-  emailComercial: string;
-
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Website é obrigatório' })
   @IsString()
-  telefoneComercial: string;
+  website: string;
+
+  @IsNotEmpty({ message: 'Rede social é obrigatória' })
+  @IsString()
+  redeSocial: string;
+
+  @IsNotEmpty({ message: 'Cidade é obrigatória' })
+  @IsString()
+  cidade: string;
+
+  @IsNotEmpty({ message: 'Estado é obrigatório' })
+  @IsString()
+  estado: string;
+
+  @IsNotEmpty({ message: 'Tipo de inscrição é obrigatório' })
+  @IsEnum(['estadual', 'municipal'], { message: 'Tipo de inscrição inválido' })
+  tipoInscricao: 'estadual' | 'municipal';
+
+  @IsNotEmpty({ message: 'Número de inscrição é obrigatório' })
+  @IsString()
+  numeroInscricao: string;
+
+  @IsNotEmpty({ message: 'Tipo de empresa é obrigatório' })
+  @IsEnum(['mei', 'lucro_presumido', 'simples_nacional'], {
+    message: 'Tipo de empresa inválido',
+  })
+  tipoEmpresa: 'mei' | 'lucro_presumido' | 'simples_nacional';
 
   @IsArray()
   @IsString({ each: true })
@@ -73,31 +82,21 @@ export class RegisterFornecedorDto {
   @IsString({ each: true })
   setores: string[];
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })
   @IsString()
   @MinLength(30, { message: 'Descrição deve ter no mínimo 30 caracteres' })
+  @MaxLength(500)
   descricaoInstitucional: string;
 
-  @IsNotEmpty()
-  @IsEnum(['cartao', 'boleto', 'pix'], {
-    message: 'Forma de pagamento inválida',
-  })
+  @IsNotEmpty({ message: 'Forma de pagamento é obrigatória' })
+  @IsEnum(['cartao', 'boleto', 'pix'], { message: 'Forma de pagamento inválida' })
   formaPagamento: 'cartao' | 'boleto' | 'pix';
 
-  @IsNotEmpty({ message: 'Cidade é obrigatória' })
+  @IsNotEmpty({ message: 'Senha é obrigatória' })
   @IsString()
-  cidade: string;
-
-  @IsNotEmpty({ message: 'Estado é obrigatório' })
-  @IsString()
-  @MinLength(2, { message: 'Selecione o estado' })
-  estado: string;
-
-  @IsOptional()
-  @IsString()
-  website?: string;
-
-  @IsOptional()
-  @IsString()
-  redeSocial?: string;
+  @MinLength(8, { message: 'Senha deve ter no mínimo 8 caracteres' })
+  @Matches(SENHA_REGEX, {
+    message: 'Senha deve ter uma letra maiúscula e um caractere especial',
+  })
+  senha: string;
 }

@@ -27,70 +27,60 @@ type FornecedorListagem = {
 export class FornecedorService {
   constructor(private readonly prisma: PrismaService) {}
 
-  normalizeCpf(cpf: string): string {
-    return cpf.replace(/\D/g, '').slice(0, 11);
-  }
-
-  async findByCpf(cpf: string) {
-    const cpfDigits = this.normalizeCpf(cpf);
-    return this.prisma.fornecedor.findUnique({
-      where: { cpf: cpfDigits },
-    });
+  async findByEmail(email: string) {
+    return this.prisma.fornecedor.findUnique({ where: { email } });
   }
 
   async create(data: {
-    cpf: string;
+    email: string;
     senha: string;
-    nomeCompleto: string;
-    telefonePessoal: string;
-    emailPessoal: string;
+    telefone: string;
+    whatsapp: string;
     cnpj: string;
     razaoSocial: string;
     nomeFantasia: string;
-    emailComercial: string;
-    telefoneComercial: string;
+    website: string;
+    redeSocial: string;
+    cidade: string;
+    estado: string;
+    tipoInscricao: string;
+    numeroInscricao: string;
+    tipoEmpresa: string;
     categoriasProdutos: string[];
     materiais: string[];
     servicos: string[];
     setores: string[];
     descricaoInstitucional: string;
     formaPagamento: string;
-    cidade: string;
-    estado: string;
-    website?: string;
-    redeSocial?: string;
   }) {
     const bcrypt = await import('bcrypt');
-    const cpfDigits = this.normalizeCpf(data.cpf);
     const senhaHash = await bcrypt.hash(data.senha, 10);
     const cnpjDigits = data.cnpj.replace(/\D/g, '').slice(0, 14);
-    const telefoneDigits = data.telefonePessoal.replace(/\D/g, '').slice(0, 11);
-    const telefoneComercialDigits = data.telefoneComercial
-      .replace(/\D/g, '')
-      .slice(0, 11);
+    const telefoneDigits = data.telefone.replace(/\D/g, '').slice(0, 11);
+    const whatsappDigits = data.whatsapp.replace(/\D/g, '').slice(0, 11);
 
     return this.prisma.fornecedor.create({
       data: {
-        cpf: cpfDigits,
+        email: data.email,
         senhaHash,
-        nomeCompleto: data.nomeCompleto,
-        telefonePessoal: telefoneDigits,
-        emailPessoal: data.emailPessoal,
+        telefone: telefoneDigits,
+        whatsapp: whatsappDigits,
         cnpj: cnpjDigits,
         razaoSocial: data.razaoSocial,
         nomeFantasia: data.nomeFantasia,
-        website: data.website ?? null,
-        redeSocial: data.redeSocial ?? null,
-        emailComercial: data.emailComercial,
-        telefoneComercial: telefoneComercialDigits,
+        website: data.website,
+        redeSocial: data.redeSocial,
+        cidade: data.cidade,
+        estado: data.estado,
+        tipoInscricao: data.tipoInscricao,
+        numeroInscricao: data.numeroInscricao,
+        tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
         materiais: data.materiais,
         servicos: data.servicos,
         setores: data.setores,
         descricaoInstitucional: data.descricaoInstitucional,
         formaPagamento: data.formaPagamento,
-        cidade: data.cidade,
-        estado: data.estado,
       },
     });
   }
