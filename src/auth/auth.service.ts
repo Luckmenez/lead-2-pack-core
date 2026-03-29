@@ -128,6 +128,10 @@ export class AuthService {
   async login(email: string, senha: string) {
     const comprador = await this.compradorService.findByEmail(email);
     if (comprador) {
+      const senhaValida = await bcrypt.compare(senha, comprador.senhaHash);
+      if (!senhaValida) {
+        throw new UnauthorizedException('E-mail ou senha inválidos');
+      }
       const payload = {
         sub: comprador.id,
         email: comprador.email,
@@ -165,6 +169,33 @@ export class AuthService {
           },
         };
       }
+      throw new UnauthorizedException('E-mail ou senha inválidos');
+    }
+
+    const profissional = await this.profissionalService.findByEmailPessoal(
+      email,
+    );
+    if (profissional) {
+      const senhaValida = await bcrypt.compare(senha, profissional.senhaHash);
+      if (!senhaValida) {
+        throw new UnauthorizedException('E-mail ou senha inválidos');
+      }
+      const payload = {
+        sub: profissional.id,
+        email: profissional.emailPessoal,
+        tipo: 'profissional',
+      };
+      const accessToken = this.jwtService.sign(payload);
+      return {
+        accessToken,
+        tipo: 'profissional' as const,
+        profissional: {
+          id: profissional.id,
+          nomeCompleto: profissional.nomeCompleto,
+          apelido: profissional.apelido,
+          emailPessoal: profissional.emailPessoal,
+        },
+      };
     }
 
     throw new UnauthorizedException('E-mail ou senha inválidos');
@@ -224,7 +255,7 @@ export class AuthService {
       profissional: {
         id: profissional.id,
         nomeCompleto: profissional.nomeCompleto,
-        cpf: profissional.cpf,
+        apelido: profissional.apelido,
         emailPessoal: profissional.emailPessoal,
       },
     };

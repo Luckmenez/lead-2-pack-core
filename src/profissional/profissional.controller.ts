@@ -1,9 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { FornecedorService } from './fornecedor.service';
+import { ProfissionalService } from './profissional.service';
 
-@Controller('fornecedores')
-export class FornecedorController {
-  constructor(private readonly fornecedorService: FornecedorService) {}
+@Controller('profissionais')
+export class ProfissionalController {
+  constructor(private readonly profissionalService: ProfissionalService) {}
 
   @Get()
   async findAll(
@@ -12,7 +12,7 @@ export class FornecedorController {
     @Query('search') search?: string,
     @Query('material') material?: string,
   ) {
-    return this.fornecedorService.findAll({
+    return this.profissionalService.findAll({
       page: page ? parseInt(page, 10) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
       search,
