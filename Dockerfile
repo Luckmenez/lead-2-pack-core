@@ -7,6 +7,6 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 
-EXPOSE 3333
+EXPOSE 3000
 
 CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
