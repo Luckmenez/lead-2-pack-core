@@ -7,7 +7,7 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 RUN npm run build
-RUN ls -la dist/
+RUN ls -la dist/ && ls -la dist/main.js
 
 EXPOSE 3000
 
