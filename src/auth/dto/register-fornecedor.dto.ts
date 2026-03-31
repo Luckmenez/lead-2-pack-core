@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -36,11 +37,11 @@ export class RegisterFornecedorDto {
   @IsString()
   nomeFantasia: string;
 
-  @IsNotEmpty({ message: 'Website é obrigatório' })
+  @IsOptional()
   @IsString()
   website: string;
 
-  @IsNotEmpty({ message: 'Rede social é obrigatória' })
+  @IsOptional()
   @IsString()
   redeSocial: string;
 
@@ -89,7 +90,9 @@ export class RegisterFornecedorDto {
   descricaoInstitucional: string;
 
   @IsNotEmpty({ message: 'Forma de pagamento é obrigatória' })
-  @IsEnum(['cartao', 'boleto', 'pix'], { message: 'Forma de pagamento inválida' })
+  @IsEnum(['cartao', 'boleto', 'pix'], {
+    message: 'Forma de pagamento inválida',
+  })
   formaPagamento: 'cartao' | 'boleto' | 'pix';
 
   @IsNotEmpty({ message: 'Senha é obrigatória' })
