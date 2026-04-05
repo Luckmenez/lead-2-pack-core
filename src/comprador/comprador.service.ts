@@ -10,6 +10,10 @@ export class CompradorService {
     return this.prisma.comprador.findUnique({ where: { email } });
   }
 
+  async findById(id: string) {
+    return this.prisma.comprador.findUnique({ where: { id } });
+  }
+
   async create(data: {
     email: string;
     senha: string;
