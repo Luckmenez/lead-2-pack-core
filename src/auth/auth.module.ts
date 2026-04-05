@@ -12,7 +12,8 @@ import { ProfissionalModule } from '../profissional/profissional.module';
     FornecedorModule,
     ProfissionalModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET ?? 'lead2pack-dev-secret-change-in-production',
+      secret:
+        process.env.JWT_SECRET ?? 'lead2pack-dev-secret-change-in-production',
       signOptions: { expiresIn: '7d' },
     }),
   ],

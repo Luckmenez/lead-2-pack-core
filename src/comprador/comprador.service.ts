@@ -28,9 +28,15 @@ export class CompradorService {
     const senhaHash = await bcrypt.hash(data.senha, 10);
     const cnpjDigits = data.cnpj.replace(/\D/g, '').slice(0, 14);
     const telefoneDigits = data.telefonePessoal.replace(/\D/g, '').slice(0, 11);
-    const whatsappPessoalDigits = data.whatsappPessoal.replace(/\D/g, '').slice(0, 11);
-    const telefoneComercialDigits = data.telefoneComercial.replace(/\D/g, '').slice(0, 11);
-    const whatsappComercialDigits = data.whatsappComercial.replace(/\D/g, '').slice(0, 11);
+    const whatsappPessoalDigits = data.whatsappPessoal
+      .replace(/\D/g, '')
+      .slice(0, 11);
+    const telefoneComercialDigits = data.telefoneComercial
+      .replace(/\D/g, '')
+      .slice(0, 11);
+    const whatsappComercialDigits = data.whatsappComercial
+      .replace(/\D/g, '')
+      .slice(0, 11);
 
     return this.prisma.comprador.create({
       data: {

@@ -8,7 +8,13 @@ import { ProfissionalModule } from './profissional/profissional.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [PrismaModule, CompradorModule, FornecedorModule, ProfissionalModule, AuthModule],
+  imports: [
+    PrismaModule,
+    CompradorModule,
+    FornecedorModule,
+    ProfissionalModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
