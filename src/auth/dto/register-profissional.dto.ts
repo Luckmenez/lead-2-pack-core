@@ -68,7 +68,9 @@ export class RegisterProfissionalDto {
   descricaoInstitucional: string;
 
   @IsNotEmpty({ message: 'Forma de pagamento é obrigatória' })
-  @IsEnum(['cartao', 'boleto', 'pix'], { message: 'Forma de pagamento inválida' })
+  @IsEnum(['cartao', 'boleto', 'pix'], {
+    message: 'Forma de pagamento inválida',
+  })
   formaPagamento: 'cartao' | 'boleto' | 'pix';
 
   @IsNotEmpty({ message: 'Senha é obrigatória' })
