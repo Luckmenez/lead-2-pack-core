@@ -1,4 +1,8 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
 
@@ -34,7 +38,7 @@ export class MailService {
       auth: { user, pass },
       family: 4,
       ...(port === 587 && !secure ? { requireTLS: true } : {}),
-    });
+    } as any);
   }
 
   isConfigured(): boolean {
@@ -48,8 +52,8 @@ export class MailService {
       );
     }
     const from =
-      process.env.MAIL_FROM?.trim() ||
-      `Lead2Pack <${process.env.MAIL_USER}>`;
+      process.env.MAIL_FROM?.trim() || `Lead2Pack <${process.env.MAIL_USER}>`;
+
     await this.transporter.sendMail({
       from,
       to: params.to,
