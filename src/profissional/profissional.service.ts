@@ -29,6 +29,10 @@ export class ProfissionalService {
     return this.prisma.profissional.findUnique({ where: { cpf: cpfDigits } });
   }
 
+  async findById(id: string) {
+    return this.prisma.profissional.findUnique({ where: { id } });
+  }
+
   async findByEmailPessoal(email: string) {
     return this.prisma.profissional.findFirst({
       where: { emailPessoal: { equals: email.trim(), mode: 'insensitive' } },

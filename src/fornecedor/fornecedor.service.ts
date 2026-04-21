@@ -23,6 +23,10 @@ export class FornecedorService {
     return this.prisma.fornecedor.findUnique({ where: { email } });
   }
 
+  async findById(id: string) {
+    return this.prisma.fornecedor.findUnique({ where: { id } });
+  }
+
   async create(data: {
     email: string;
     senha: string;
