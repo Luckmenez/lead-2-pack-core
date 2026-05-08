@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginCompradorDto } from './dto/login-comprador.dto';
 import { LoginFornecedorDto } from './dto/login-fornecedor.dto';
+import { LoginSelecionarPerfilDto } from './dto/login-selecionar-perfil.dto';
 import { RegisterCompradorDto } from './dto/register-comprador.dto';
 import { RegisterFornecedorDto } from './dto/register-fornecedor.dto';
 import { RegisterProfissionalDto } from './dto/register-profissional.dto';
@@ -13,6 +14,16 @@ export class AuthController {
   @Post('comprador/register')
   async registerComprador(@Body() dto: RegisterCompradorDto) {
     return this.authService.registerComprador(dto);
+  }
+
+  @Post('login/selecionar-perfil')
+  @HttpCode(HttpStatus.OK)
+  async loginSelecionarPerfil(@Body() dto: LoginSelecionarPerfilDto) {
+    return this.authService.loginSelecionarPerfil(
+      dto.email,
+      dto.senha,
+      dto.perfil,
+    );
   }
 
   @Post('login')

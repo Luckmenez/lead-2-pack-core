@@ -54,6 +54,7 @@ model Fornecedor {
   servicos              Json
   setores               Json
   descricaoInstitucional String  @map("descricao_institucional")
+  portfolioUrls         Json     @default("[]") @map("portfolio_urls")
   formaPagamento        String   @map("forma_pagamento")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")
@@ -77,6 +78,7 @@ model Profissional {
   servicos              Json
   setores               Json
   descricaoInstitucional String  @map("descricao_institucional")
+  portfolioUrls         Json     @default("[]") @map("portfolio_urls")
   formaPagamento        String   @map("forma_pagamento")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @updatedAt @map("updated_at")

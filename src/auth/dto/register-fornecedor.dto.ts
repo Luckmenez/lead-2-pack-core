@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
   MinLength,
@@ -88,6 +89,11 @@ export class RegisterFornecedorDto {
   @MinLength(30, { message: 'Descrição deve ter no mínimo 30 caracteres' })
   @MaxLength(500)
   descricaoInstitucional: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUrl({}, { each: true, message: 'URL de portfólio inválida' })
+  portfolioUrls?: string[];
 
   @IsNotEmpty({ message: 'Forma de pagamento é obrigatória' })
   @IsEnum(['cartao', 'boleto', 'pix'], {

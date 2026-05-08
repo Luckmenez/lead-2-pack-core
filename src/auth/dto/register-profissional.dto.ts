@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
   MinLength,
@@ -67,8 +68,15 @@ export class RegisterProfissionalDto {
   @MaxLength(300)
   descricaoInstitucional: string;
 
+  @IsOptional()
+  @IsArray()
+  @IsUrl({}, { each: true, message: 'URL de portfólio inválida' })
+  portfolioUrls?: string[];
+
   @IsNotEmpty({ message: 'Forma de pagamento é obrigatória' })
-  @IsEnum(['cartao', 'boleto', 'pix'], { message: 'Forma de pagamento inválida' })
+  @IsEnum(['cartao', 'boleto', 'pix'], {
+    message: 'Forma de pagamento inválida',
+  })
   formaPagamento: 'cartao' | 'boleto' | 'pix';
 
   @IsNotEmpty({ message: 'Senha é obrigatória' })

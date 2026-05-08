@@ -13,6 +13,7 @@ type FornecedorListagem = {
   setores: unknown;
   cidade: string;
   estado: string;
+  portfolioUrls: unknown;
 };
 
 @Injectable()
@@ -21,6 +22,40 @@ export class FornecedorService {
 
   async findByEmail(email: string) {
     return this.prisma.fornecedor.findUnique({ where: { email } });
+  }
+
+  async findById(id: string) {
+    return this.prisma.fornecedor.findUnique({ where: { id } });
+  }
+
+  async findMe(id: string) {
+    return this.prisma.fornecedor.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        telefone: true,
+        whatsapp: true,
+        cnpj: true,
+        razaoSocial: true,
+        nomeFantasia: true,
+        website: true,
+        redeSocial: true,
+        cidade: true,
+        estado: true,
+        tipoInscricao: true,
+        numeroInscricao: true,
+        tipoEmpresa: true,
+        categoriasProdutos: true,
+        materiais: true,
+        servicos: true,
+        setores: true,
+        descricaoInstitucional: true,
+        portfolioUrls: true,
+        formaPagamento: true,
+        createdAt: true,
+      },
+    });
   }
 
   async create(data: {
@@ -43,6 +78,7 @@ export class FornecedorService {
     servicos: string[];
     setores: string[];
     descricaoInstitucional: string;
+    portfolioUrls?: string[];
     formaPagamento: string;
   }) {
     const bcrypt = await import('bcrypt');
@@ -72,8 +108,17 @@ export class FornecedorService {
         servicos: data.servicos,
         setores: data.setores,
         descricaoInstitucional: data.descricaoInstitucional,
+        portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
       },
+    });
+  }
+
+  async updatePortfolio(id: string, portfolioUrls: string[]) {
+    return this.prisma.fornecedor.update({
+      where: { id },
+      data: { portfolioUrls },
+      select: { id: true, portfolioUrls: true },
     });
   }
 
@@ -137,7 +182,8 @@ export class FornecedorService {
         SELECT id, nome_fantasia as "nomeFantasia",
           descricao_institucional as "descricaoInstitucional",
           categorias_produtos as "categoriasProdutos",
-          materiais, servicos, setores, cidade, estado
+          materiais, servicos, setores, cidade, estado,
+          portfolio_urls as "portfolioUrls"
         FROM fornecedores
         ${whereClause}
         ORDER BY nome_fantasia ASC
