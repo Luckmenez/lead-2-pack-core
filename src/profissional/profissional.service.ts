@@ -14,6 +14,7 @@ type ProfissionalListagem = {
   setores: unknown;
   website: string | null;
   redeSocial: string | null;
+  portfolioUrls: unknown;
 };
 
 @Injectable()
@@ -31,6 +32,31 @@ export class ProfissionalService {
 
   async findById(id: string) {
     return this.prisma.profissional.findUnique({ where: { id } });
+  }
+
+  async findMe(id: string) {
+    return this.prisma.profissional.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        cpf: true,
+        nomeCompleto: true,
+        apelido: true,
+        telefonePessoal: true,
+        whatsappPessoal: true,
+        emailPessoal: true,
+        website: true,
+        redeSocial: true,
+        categoriasProdutos: true,
+        materiais: true,
+        servicos: true,
+        setores: true,
+        descricaoInstitucional: true,
+        portfolioUrls: true,
+        formaPagamento: true,
+        createdAt: true,
+      },
+    });
   }
 
   async findByEmailPessoal(email: string) {
@@ -54,6 +80,7 @@ export class ProfissionalService {
     servicos: string[];
     setores: string[];
     descricaoInstitucional: string;
+    portfolioUrls?: string[];
     formaPagamento: string;
   }) {
     const bcrypt = await import('bcrypt');
@@ -78,8 +105,17 @@ export class ProfissionalService {
         servicos: data.servicos,
         setores: data.setores,
         descricaoInstitucional: data.descricaoInstitucional,
+        portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
       },
+    });
+  }
+
+  async updatePortfolio(id: string, portfolioUrls: string[]) {
+    return this.prisma.profissional.update({
+      where: { id },
+      data: { portfolioUrls },
+      select: { id: true, portfolioUrls: true },
     });
   }
 
@@ -138,7 +174,8 @@ export class ProfissionalService {
         SELECT id, nome_completo as "nomeCompleto", apelido,
           descricao_institucional as "descricaoInstitucional",
           categorias_produtos as "categoriasProdutos",
-          materiais, servicos, setores, website, rede_social as "redeSocial"
+          materiais, servicos, setores, website, rede_social as "redeSocial",
+          portfolio_urls as "portfolioUrls"
         FROM profissionais
         ${whereClause}
         ORDER BY apelido ASC

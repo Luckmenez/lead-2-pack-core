@@ -125,6 +125,7 @@ export class AuthService {
     servicos: string[];
     setores: string[];
     descricaoInstitucional: string;
+    portfolioUrls?: string[];
     formaPagamento: string;
   }) {
     const existente = await this.fornecedorService.findByEmail(dto.email);
@@ -367,6 +368,7 @@ export class AuthService {
     servicos: string[];
     setores: string[];
     descricaoInstitucional: string;
+    portfolioUrls?: string[];
     formaPagamento: string;
   }) {
     const existente = await this.profissionalService.findByCpf(dto.cpf);
