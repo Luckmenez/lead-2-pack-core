@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { MATERIAIS_FILTRO_OPCOES } from '../catalog/materiais-cadastro';
 import { PrismaService } from '../prisma/prisma.service';
@@ -112,6 +116,99 @@ export class FornecedorService {
         formaPagamento: data.formaPagamento,
       },
     });
+  }
+
+  async updateMe(
+    id: string,
+    data: {
+      email?: string;
+      telefone?: string;
+      whatsapp?: string;
+      razaoSocial?: string;
+      nomeFantasia?: string;
+      website?: string;
+      redeSocial?: string;
+      cidade?: string;
+      estado?: string;
+      tipoInscricao?: string;
+      numeroInscricao?: string;
+      tipoEmpresa?: string;
+      categoriasProdutos?: string[];
+      materiais?: string[];
+      servicos?: string[];
+      setores?: string[];
+      descricaoInstitucional?: string;
+    },
+  ) {
+    const updateData: any = {};
+
+    if (data.email !== undefined) updateData.email = data.email;
+    if (data.telefone !== undefined)
+      updateData.telefone = data.telefone.replace(/\D/g, '').slice(0, 11);
+    if (data.whatsapp !== undefined)
+      updateData.whatsapp = data.whatsapp.replace(/\D/g, '').slice(0, 11);
+    if (data.razaoSocial !== undefined)
+      updateData.razaoSocial = data.razaoSocial;
+    if (data.nomeFantasia !== undefined)
+      updateData.nomeFantasia = data.nomeFantasia;
+    if (data.website !== undefined) updateData.website = data.website;
+    if (data.redeSocial !== undefined) updateData.redeSocial = data.redeSocial;
+    if (data.cidade !== undefined) updateData.cidade = data.cidade;
+    if (data.estado !== undefined) updateData.estado = data.estado;
+    if (data.tipoInscricao !== undefined)
+      updateData.tipoInscricao = data.tipoInscricao;
+    if (data.numeroInscricao !== undefined)
+      updateData.numeroInscricao = data.numeroInscricao;
+    if (data.tipoEmpresa !== undefined)
+      updateData.tipoEmpresa = data.tipoEmpresa;
+    if (data.categoriasProdutos !== undefined)
+      updateData.categoriasProdutos = data.categoriasProdutos;
+    if (data.materiais !== undefined) updateData.materiais = data.materiais;
+    if (data.servicos !== undefined) updateData.servicos = data.servicos;
+    if (data.setores !== undefined) updateData.setores = data.setores;
+    if (data.descricaoInstitucional !== undefined)
+      updateData.descricaoInstitucional = data.descricaoInstitucional;
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException(
+        'Ao menos um campo deve ser informado para atualização',
+      );
+    }
+
+    try {
+      return await this.prisma.fornecedor.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          email: true,
+          telefone: true,
+          whatsapp: true,
+          cnpj: true,
+          razaoSocial: true,
+          nomeFantasia: true,
+          website: true,
+          redeSocial: true,
+          cidade: true,
+          estado: true,
+          tipoInscricao: true,
+          numeroInscricao: true,
+          tipoEmpresa: true,
+          categoriasProdutos: true,
+          materiais: true,
+          servicos: true,
+          setores: true,
+          descricaoInstitucional: true,
+          portfolioUrls: true,
+          formaPagamento: true,
+          createdAt: true,
+        },
+      });
+    } catch (e) {
+      if (e?.code === 'P2025')
+        throw new NotFoundException('Fornecedor não encontrado');
+      throw e;
+    }
   }
 
   async updatePortfolio(id: string, portfolioUrls: string[]) {

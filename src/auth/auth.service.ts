@@ -2,13 +2,17 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { CompradorService } from '../comprador/comprador.service';
 import { FornecedorService } from '../fornecedor/fornecedor.service';
 import { ProfissionalService } from '../profissional/profissional.service';
+import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { PerfilLoginSelecao } from './dto/login-selecionar-perfil.dto';
 
 @Injectable()
@@ -18,6 +22,8 @@ export class AuthService {
     private readonly fornecedorService: FornecedorService,
     private readonly profissionalService: ProfissionalService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async registerComprador(dto: {
@@ -351,6 +357,86 @@ export class AuthService {
         nomeFantasia: fornecedor.nomeFantasia,
       },
     };
+  }
+
+  async solicitarRecuperacaoSenha(email: string): Promise<void> {
+    const emailNorm = email.trim().toLowerCase();
+
+    const [comprador, fornecedor, profissional] = await Promise.all([
+      this.compradorService.findByEmail(emailNorm),
+      this.fornecedorService.findByEmail(emailNorm),
+      this.profissionalService.findByEmailPessoal(emailNorm),
+    ]);
+
+    // Retorna genérico para não vazar se e-mail existe
+    if (!comprador && !fornecedor && !profissional) return;
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await this.prisma.passwordResetToken.create({
+      data: { token, email: emailNorm, expiresAt },
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+
+    await this.mailService.sendPasswordResetEmail(emailNorm, resetLink);
+  }
+
+  async redefinirSenha(token: string, novaSenha: string): Promise<void> {
+    const registro = await this.prisma.passwordResetToken.findUnique({
+      where: { token },
+    });
+
+    if (!registro) {
+      throw new NotFoundException('Token inválido ou expirado');
+    }
+    if (registro.usedAt) {
+      throw new BadRequestException('Este link já foi utilizado');
+    }
+    if (registro.expiresAt < new Date()) {
+      throw new BadRequestException('Este link expirou. Solicite um novo.');
+    }
+
+    const email = registro.email;
+    const novoHash = await bcrypt.hash(novaSenha, 10);
+
+    const [comprador, fornecedor, profissional] = await Promise.all([
+      this.compradorService.findByEmail(email),
+      this.fornecedorService.findByEmail(email),
+      this.profissionalService.findByEmailPessoal(email),
+    ]);
+
+    if (!comprador && !fornecedor && !profissional) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    await Promise.all([
+      comprador
+        ? this.prisma.comprador.update({
+            where: { id: comprador.id },
+            data: { senhaHash: novoHash },
+          })
+        : null,
+      fornecedor
+        ? this.prisma.fornecedor.update({
+            where: { id: fornecedor.id },
+            data: { senhaHash: novoHash },
+          })
+        : null,
+      profissional
+        ? this.prisma.profissional.update({
+            where: { id: profissional.id },
+            data: { senhaHash: novoHash },
+          })
+        : null,
+    ]);
+
+    await this.prisma.passwordResetToken.update({
+      where: { token },
+      data: { usedAt: new Date() },
+    });
   }
 
   async registerProfissional(dto: {

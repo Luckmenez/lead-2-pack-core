@@ -7,6 +7,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { CompradorModule } from '../comprador/comprador.module';
 import { FornecedorModule } from '../fornecedor/fornecedor.module';
 import { ProfissionalModule } from '../profissional/profissional.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProfissionalModule } from '../profissional/profissional.module';
     CompradorModule,
     FornecedorModule,
     ProfissionalModule,
+    MailModule,
     JwtModule.register({
       secret:
         process.env.JWT_SECRET ?? 'lead2pack-dev-secret-change-in-production',
