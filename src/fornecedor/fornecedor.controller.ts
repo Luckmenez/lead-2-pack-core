@@ -1,4 +1,13 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
@@ -29,11 +38,15 @@ class UpdateFornecedorMeDto {
   email?: string;
 
   @IsOptional()
-  @Matches(/^\d{10,11}$/, { message: 'telefone deve conter apenas dígitos (10 ou 11)' })
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefone deve conter apenas dígitos (10 ou 11)',
+  })
   telefone?: string;
 
   @IsOptional()
-  @Matches(/^\d{10,11}$/, { message: 'whatsapp deve conter apenas dígitos (10 ou 11)' })
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsapp deve conter apenas dígitos (10 ou 11)',
+  })
   whatsapp?: string;
 
   @IsOptional()
@@ -45,8 +58,11 @@ class UpdateFornecedorMeDto {
   nomeFantasia?: string;
 
   @IsOptional()
-  @ValidateIf(o => o.website !== undefined && o.website !== '')
-  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: 'website deve ser uma URL válida com http:// ou https://' })
+  @ValidateIf((o) => o.website !== undefined && o.website !== '')
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'website deve ser uma URL válida com http:// ou https://' },
+  )
   website?: string;
 
   @IsOptional()
@@ -58,11 +74,15 @@ class UpdateFornecedorMeDto {
   cidade?: string;
 
   @IsOptional()
-  @Matches(/^[A-Z]{2}$/, { message: 'estado deve ser uma UF válida com 2 letras maiúsculas' })
+  @Matches(/^[A-Z]{2}$/, {
+    message: 'estado deve ser uma UF válida com 2 letras maiúsculas',
+  })
   estado?: string;
 
   @IsOptional()
-  @IsIn(['estadual', 'municipal'], { message: 'tipoInscricao deve ser "estadual" ou "municipal"' })
+  @IsIn(['estadual', 'municipal'], {
+    message: 'tipoInscricao deve ser "estadual" ou "municipal"',
+  })
   tipoInscricao?: string;
 
   @IsOptional()
@@ -70,7 +90,10 @@ class UpdateFornecedorMeDto {
   numeroInscricao?: string;
 
   @IsOptional()
-  @IsIn(['mei', 'lucro_presumido', 'simples_nacional'], { message: 'tipoEmpresa deve ser "mei", "lucro_presumido" ou "simples_nacional"' })
+  @IsIn(['mei', 'lucro_presumido', 'simples_nacional'], {
+    message:
+      'tipoEmpresa deve ser "mei", "lucro_presumido" ou "simples_nacional"',
+  })
   tipoEmpresa?: string;
 
   @IsOptional()
@@ -99,8 +122,12 @@ class UpdateFornecedorMeDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(30, { message: 'descricaoInstitucional deve ter no mínimo 30 caracteres' })
-  @MaxLength(500, { message: 'descricaoInstitucional deve ter no máximo 500 caracteres' })
+  @MinLength(30, {
+    message: 'descricaoInstitucional deve ter no mínimo 30 caracteres',
+  })
+  @MaxLength(500, {
+    message: 'descricaoInstitucional deve ter no máximo 500 caracteres',
+  })
   descricaoInstitucional?: string;
 }
 

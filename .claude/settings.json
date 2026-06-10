@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/lucasmenezes/projects/lead-to-pack-core/.vscode)"
+    ],
+    "additionalDirectories": [
+      "/Users/lucasmenezes/projects/lead-to-pack-core"
+    ]
+  }
+}

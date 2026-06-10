@@ -6,6 +6,8 @@ import { LoginSelecionarPerfilDto } from './dto/login-selecionar-perfil.dto';
 import { RegisterCompradorDto } from './dto/register-comprador.dto';
 import { RegisterFornecedorDto } from './dto/register-fornecedor.dto';
 import { RegisterProfissionalDto } from './dto/register-profissional.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -52,5 +54,22 @@ export class AuthController {
   @Post('profissional/register')
   async registerProfissional(@Body() dto: RegisterProfissionalDto) {
     return this.authService.registerProfissional(dto);
+  }
+
+  @Post('esqueci-senha')
+  @HttpCode(HttpStatus.OK)
+  async esqueciSenha(@Body() dto: ForgotPasswordDto) {
+    await this.authService.solicitarRecuperacaoSenha(dto.email);
+    return {
+      message:
+        'Se este e-mail estiver cadastrado, você receberá um link para redefinir sua senha.',
+    };
+  }
+
+  @Post('redefinir-senha')
+  @HttpCode(HttpStatus.OK)
+  async redefinirSenha(@Body() dto: ResetPasswordDto) {
+    await this.authService.redefinirSenha(dto.token, dto.novaSenha);
+    return { message: 'Senha redefinida com sucesso.' };
   }
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, NotFoundException, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
@@ -32,11 +40,15 @@ class UpdateProfissionalMeDto {
   apelido?: string;
 
   @IsOptional()
-  @Matches(/^\d{10,11}$/, { message: 'telefonePessoal deve conter apenas dígitos (10 ou 11)' })
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefonePessoal deve conter apenas dígitos (10 ou 11)',
+  })
   telefonePessoal?: string;
 
   @IsOptional()
-  @Matches(/^\d{10,11}$/, { message: 'whatsappPessoal deve conter apenas dígitos (10 ou 11)' })
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsappPessoal deve conter apenas dígitos (10 ou 11)',
+  })
   whatsappPessoal?: string;
 
   @IsOptional()
@@ -44,8 +56,11 @@ class UpdateProfissionalMeDto {
   emailPessoal?: string;
 
   @IsOptional()
-  @ValidateIf(o => o.website !== undefined && o.website !== '')
-  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { message: 'website deve ser uma URL válida com http:// ou https://' })
+  @ValidateIf((o) => o.website !== undefined && o.website !== '')
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'website deve ser uma URL válida com http:// ou https://' },
+  )
   website?: string;
 
   @IsOptional()
@@ -78,8 +93,12 @@ class UpdateProfissionalMeDto {
 
   @IsOptional()
   @IsString()
-  @MinLength(30, { message: 'descricaoInstitucional deve ter no mínimo 30 caracteres' })
-  @MaxLength(300, { message: 'descricaoInstitucional deve ter no máximo 300 caracteres' })
+  @MinLength(30, {
+    message: 'descricaoInstitucional deve ter no mínimo 30 caracteres',
+  })
+  @MaxLength(300, {
+    message: 'descricaoInstitucional deve ter no máximo 300 caracteres',
+  })
   descricaoInstitucional?: string;
 }
 
@@ -127,6 +146,9 @@ export class ProfissionalController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdatePortfolioDto,
   ) {
-    return this.profissionalService.updatePortfolio(user.sub, dto.portfolioUrls);
+    return this.profissionalService.updatePortfolio(
+      user.sub,
+      dto.portfolioUrls,
+    );
   }
 }
