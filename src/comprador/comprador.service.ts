@@ -69,9 +69,9 @@ export class CompradorService {
     const where: Prisma.CompradorWhereInput = {};
     if (search) {
       where.OR = [
-        { nomeFantasia: { contains: search, mode: 'insensitive' } },
-        { razaoSocial: { contains: search, mode: 'insensitive' } },
-        { nomeCompleto: { contains: search, mode: 'insensitive' } },
+        { nomeFantasia: { startsWith: search, mode: 'insensitive' } },
+        { razaoSocial: { startsWith: search, mode: 'insensitive' } },
+        { nomeCompleto: { startsWith: search, mode: 'insensitive' } },
       ];
     }
 

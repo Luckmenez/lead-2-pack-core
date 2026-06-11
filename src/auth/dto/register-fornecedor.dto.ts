@@ -72,21 +72,6 @@ export class RegisterFornecedorDto {
   @IsString({ each: true })
   categoriasProdutos: string[];
 
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  materiais?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  servicos?: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  setores?: string[];
-
   @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })
   @IsString()
   @MinLength(30, { message: 'Descrição deve ter no mínimo 30 caracteres' })

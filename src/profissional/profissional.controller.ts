@@ -82,24 +82,6 @@ class UpdateProfissionalMeDto {
   categoriasProdutos?: string[];
 
   @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  materiais?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  servicos?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  setores?: string[];
-
-  @IsOptional()
   @IsString()
   @MinLength(30, {
     message: 'descricaoInstitucional deve ter no mínimo 30 caracteres',

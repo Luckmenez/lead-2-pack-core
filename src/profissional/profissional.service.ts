@@ -13,9 +13,6 @@ type ProfissionalListagem = {
   apelido: string;
   descricaoInstitucional: string;
   categoriasProdutos: unknown;
-  materiais: unknown;
-  servicos: unknown;
-  setores: unknown;
   website: string | null;
   redeSocial: string | null;
   portfolioUrls: unknown;
@@ -53,9 +50,6 @@ export class ProfissionalService {
         redeSocial: true,
         tipoEmpresa: true,
         categoriasProdutos: true,
-        materiais: true,
-        servicos: true,
-        setores: true,
         descricaoInstitucional: true,
         portfolioUrls: true,
         formaPagamento: true,
@@ -82,9 +76,6 @@ export class ProfissionalService {
     redeSocial?: string;
     tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -108,9 +99,9 @@ export class ProfissionalService {
         redeSocial: data.redeSocial ?? null,
         tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
-        materiais: data.materiais ?? [],
-        servicos: data.servicos ?? [],
-        setores: data.setores ?? [],
+        materiais: [],
+        servicos: [],
+        setores: [],
         descricaoInstitucional: data.descricaoInstitucional,
         portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
@@ -130,9 +121,6 @@ export class ProfissionalService {
       redeSocial?: string;
       tipoEmpresa?: string;
       categoriasProdutos?: string[];
-      materiais?: string[];
-      servicos?: string[];
-      setores?: string[];
       descricaoInstitucional?: string;
     },
   ) {
@@ -158,9 +146,6 @@ export class ProfissionalService {
       updateData.tipoEmpresa = data.tipoEmpresa;
     if (data.categoriasProdutos !== undefined)
       updateData.categoriasProdutos = data.categoriasProdutos;
-    if (data.materiais !== undefined) updateData.materiais = data.materiais;
-    if (data.servicos !== undefined) updateData.servicos = data.servicos;
-    if (data.setores !== undefined) updateData.setores = data.setores;
     if (data.descricaoInstitucional !== undefined)
       updateData.descricaoInstitucional = data.descricaoInstitucional;
 
@@ -186,9 +171,6 @@ export class ProfissionalService {
           redeSocial: true,
           tipoEmpresa: true,
           categoriasProdutos: true,
-          materiais: true,
-          servicos: true,
-          setores: true,
           descricaoInstitucional: true,
           portfolioUrls: true,
           formaPagamento: true,
@@ -226,7 +208,7 @@ export class ProfissionalService {
         ? materialRaw
         : undefined;
 
-    const searchPattern = search ? `%${search}%` : null;
+    const searchPattern = search ? `${search}%` : null;
     const matJson = material ? JSON.stringify([material]) : null;
 
     const matCond =
@@ -234,35 +216,22 @@ export class ProfissionalService {
         ? Prisma.sql`categorias_produtos::jsonb @> ${matJson}::jsonb`
         : Prisma.sql`TRUE`;
 
-    const fullSearch =
+    const namePrefix =
       searchPattern != null
         ? Prisma.sql`(
       nome_completo ILIKE ${searchPattern}
       OR apelido ILIKE ${searchPattern}
-      OR descricao_institucional ILIKE ${searchPattern}
-      OR categorias_produtos::text ILIKE ${searchPattern}
     )`
         : Prisma.sql`TRUE`;
 
-    const nameMatch =
-      searchPattern != null
-        ? Prisma.sql`(
-      nome_completo ILIKE ${searchPattern}
-      OR apelido ILIKE ${searchPattern}
-    )`
-        : Prisma.sql`FALSE`;
-
-    const whereClause = Prisma.sql`WHERE (
-      (${matCond} AND ${fullSearch})
-      OR ${nameMatch}
-    )`;
+    const whereClause = Prisma.sql`WHERE ${matCond} AND ${namePrefix}`;
 
     const [rows, countRows] = await Promise.all([
       this.prisma.$queryRaw<ProfissionalListagem[]>`
         SELECT id, nome_completo as "nomeCompleto", apelido,
           descricao_institucional as "descricaoInstitucional",
           categorias_produtos as "categoriasProdutos",
-          materiais, servicos, setores, website, rede_social as "redeSocial",
+          website, rede_social as "redeSocial",
           portfolio_urls as "portfolioUrls"
         FROM profissionais
         ${whereClause}

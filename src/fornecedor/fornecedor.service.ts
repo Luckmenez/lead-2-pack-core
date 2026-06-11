@@ -12,9 +12,6 @@ type FornecedorListagem = {
   nomeFantasia: string;
   descricaoInstitucional: string;
   categoriasProdutos: unknown;
-  materiais: unknown;
-  servicos: unknown;
-  setores: unknown;
   cidade: string;
   estado: string;
   portfolioUrls: unknown;
@@ -51,9 +48,6 @@ export class FornecedorService {
         numeroInscricao: true,
         tipoEmpresa: true,
         categoriasProdutos: true,
-        materiais: true,
-        servicos: true,
-        setores: true,
         descricaoInstitucional: true,
         portfolioUrls: true,
         formaPagamento: true,
@@ -78,9 +72,6 @@ export class FornecedorService {
     numeroInscricao: string;
     tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -108,9 +99,9 @@ export class FornecedorService {
         numeroInscricao: data.numeroInscricao,
         tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
-        materiais: data.materiais ?? [],
-        servicos: data.servicos ?? [],
-        setores: data.setores ?? [],
+        materiais: [],
+        servicos: [],
+        setores: [],
         descricaoInstitucional: data.descricaoInstitucional,
         portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
@@ -134,9 +125,6 @@ export class FornecedorService {
       numeroInscricao?: string;
       tipoEmpresa?: string;
       categoriasProdutos?: string[];
-      materiais?: string[];
-      servicos?: string[];
-      setores?: string[];
       descricaoInstitucional?: string;
     },
   ) {
@@ -163,9 +151,6 @@ export class FornecedorService {
       updateData.tipoEmpresa = data.tipoEmpresa;
     if (data.categoriasProdutos !== undefined)
       updateData.categoriasProdutos = data.categoriasProdutos;
-    if (data.materiais !== undefined) updateData.materiais = data.materiais;
-    if (data.servicos !== undefined) updateData.servicos = data.servicos;
-    if (data.setores !== undefined) updateData.setores = data.setores;
     if (data.descricaoInstitucional !== undefined)
       updateData.descricaoInstitucional = data.descricaoInstitucional;
 
@@ -195,9 +180,6 @@ export class FornecedorService {
           numeroInscricao: true,
           tipoEmpresa: true,
           categoriasProdutos: true,
-          materiais: true,
-          servicos: true,
-          setores: true,
           descricaoInstitucional: true,
           portfolioUrls: true,
           formaPagamento: true,
@@ -236,46 +218,30 @@ export class FornecedorService {
         ? materialRaw
         : undefined;
 
-    const searchPattern = search ? `%${search}%` : null;
+    const searchPattern = search ? `${search}%` : null;
     const matJson = material ? JSON.stringify([material]) : null;
 
-    /**
-     * (categoria + busca ampla) OU (nome fantasia ou razão social batem com o texto).
-     */
     const matCond =
       matJson != null
         ? Prisma.sql`categorias_produtos::jsonb @> ${matJson}::jsonb`
         : Prisma.sql`TRUE`;
 
-    const fullSearch =
+    const namePrefix =
       searchPattern != null
         ? Prisma.sql`(
       nome_fantasia ILIKE ${searchPattern}
       OR razao_social ILIKE ${searchPattern}
-      OR descricao_institucional ILIKE ${searchPattern}
-      OR categorias_produtos::text ILIKE ${searchPattern}
     )`
         : Prisma.sql`TRUE`;
 
-    const nameMatch =
-      searchPattern != null
-        ? Prisma.sql`(
-      nome_fantasia ILIKE ${searchPattern}
-      OR razao_social ILIKE ${searchPattern}
-    )`
-        : Prisma.sql`FALSE`;
-
-    const whereClause = Prisma.sql`WHERE (
-      (${matCond} AND ${fullSearch})
-      OR ${nameMatch}
-    )`;
+    const whereClause = Prisma.sql`WHERE ${matCond} AND ${namePrefix}`;
 
     const [rows, countRows] = await Promise.all([
       this.prisma.$queryRaw<FornecedorListagem[]>`
         SELECT id, nome_fantasia as "nomeFantasia",
           descricao_institucional as "descricaoInstitucional",
           categorias_produtos as "categoriasProdutos",
-          materiais, servicos, setores, cidade, estado,
+          cidade, estado,
           portfolio_urls as "portfolioUrls"
         FROM fornecedores
         ${whereClause}

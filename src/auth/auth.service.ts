@@ -127,9 +127,6 @@ export class AuthService {
     numeroInscricao: string;
     tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -451,9 +448,6 @@ export class AuthService {
     redeSocial?: string;
     tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
