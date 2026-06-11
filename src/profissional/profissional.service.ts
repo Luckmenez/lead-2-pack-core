@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { MATERIAIS_FILTRO_OPCOES } from '../catalog/materiais-cadastro';
+import { PROFISSIONAL_CATEGORIAS_FILTRO } from '../catalog/categorias-cadastro';
 import { PrismaService } from '../prisma/prisma.service';
 
 type ProfissionalListagem = {
@@ -51,6 +51,7 @@ export class ProfissionalService {
         emailPessoal: true,
         website: true,
         redeSocial: true,
+        tipoEmpresa: true,
         categoriasProdutos: true,
         materiais: true,
         servicos: true,
@@ -79,6 +80,7 @@ export class ProfissionalService {
     emailPessoal: string;
     website?: string;
     redeSocial?: string;
+    tipoEmpresa: string;
     categoriasProdutos: string[];
     materiais: string[];
     servicos: string[];
@@ -104,10 +106,11 @@ export class ProfissionalService {
         emailPessoal: data.emailPessoal,
         website: data.website ?? null,
         redeSocial: data.redeSocial ?? null,
+        tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
-        materiais: data.materiais,
-        servicos: data.servicos,
-        setores: data.setores,
+        materiais: data.materiais ?? [],
+        servicos: data.servicos ?? [],
+        setores: data.setores ?? [],
         descricaoInstitucional: data.descricaoInstitucional,
         portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
@@ -125,6 +128,7 @@ export class ProfissionalService {
       emailPessoal?: string;
       website?: string;
       redeSocial?: string;
+      tipoEmpresa?: string;
       categoriasProdutos?: string[];
       materiais?: string[];
       servicos?: string[];
@@ -150,6 +154,8 @@ export class ProfissionalService {
     if (data.website !== undefined) updateData.website = data.website || null;
     if (data.redeSocial !== undefined)
       updateData.redeSocial = data.redeSocial || null;
+    if (data.tipoEmpresa !== undefined)
+      updateData.tipoEmpresa = data.tipoEmpresa;
     if (data.categoriasProdutos !== undefined)
       updateData.categoriasProdutos = data.categoriasProdutos;
     if (data.materiais !== undefined) updateData.materiais = data.materiais;
@@ -178,6 +184,7 @@ export class ProfissionalService {
           emailPessoal: true,
           website: true,
           redeSocial: true,
+          tipoEmpresa: true,
           categoriasProdutos: true,
           materiais: true,
           servicos: true,
@@ -215,7 +222,7 @@ export class ProfissionalService {
     const search = params.search?.trim();
     const materialRaw = params.material?.trim();
     const material =
-      materialRaw && MATERIAIS_FILTRO_OPCOES.includes(materialRaw)
+      materialRaw && PROFISSIONAL_CATEGORIAS_FILTRO.includes(materialRaw)
         ? materialRaw
         : undefined;
 
@@ -224,7 +231,7 @@ export class ProfissionalService {
 
     const matCond =
       matJson != null
-        ? Prisma.sql`materiais::jsonb @> ${matJson}::jsonb`
+        ? Prisma.sql`categorias_produtos::jsonb @> ${matJson}::jsonb`
         : Prisma.sql`TRUE`;
 
     const fullSearch =
@@ -233,10 +240,7 @@ export class ProfissionalService {
       nome_completo ILIKE ${searchPattern}
       OR apelido ILIKE ${searchPattern}
       OR descricao_institucional ILIKE ${searchPattern}
-      OR materiais::text ILIKE ${searchPattern}
-      OR servicos::text ILIKE ${searchPattern}
       OR categorias_produtos::text ILIKE ${searchPattern}
-      OR setores::text ILIKE ${searchPattern}
     )`
         : Prisma.sql`TRUE`;
 

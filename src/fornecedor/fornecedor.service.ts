@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { MATERIAIS_FILTRO_OPCOES } from '../catalog/materiais-cadastro';
+import { FORNECEDOR_CATEGORIAS_FILTRO } from '../catalog/categorias-cadastro';
 import { PrismaService } from '../prisma/prisma.service';
 
 type FornecedorListagem = {
@@ -108,9 +108,9 @@ export class FornecedorService {
         numeroInscricao: data.numeroInscricao,
         tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
-        materiais: data.materiais,
-        servicos: data.servicos,
-        setores: data.setores,
+        materiais: data.materiais ?? [],
+        servicos: data.servicos ?? [],
+        setores: data.setores ?? [],
         descricaoInstitucional: data.descricaoInstitucional,
         portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
@@ -223,7 +223,7 @@ export class FornecedorService {
     page?: number;
     limit?: number;
     search?: string;
-    /** Filtra por um material cadastrado (campo `materiais` JSON). */
+    /** Filtra por categoria cadastrada (campo `categorias_produtos` JSON). */
     material?: string;
   }) {
     const page = Math.max(1, params.page ?? 1);
@@ -232,7 +232,7 @@ export class FornecedorService {
     const search = params.search?.trim();
     const materialRaw = params.material?.trim();
     const material =
-      materialRaw && MATERIAIS_FILTRO_OPCOES.includes(materialRaw)
+      materialRaw && FORNECEDOR_CATEGORIAS_FILTRO.includes(materialRaw)
         ? materialRaw
         : undefined;
 
@@ -240,12 +240,11 @@ export class FornecedorService {
     const matJson = material ? JSON.stringify([material]) : null;
 
     /**
-     * (material + busca ampla) OU (nome fantasia ou razão social batem com o texto).
-     * Assim, com material "errado" no filtro ainda achar a empresa pelo nome digitado.
+     * (categoria + busca ampla) OU (nome fantasia ou razão social batem com o texto).
      */
     const matCond =
       matJson != null
-        ? Prisma.sql`materiais::jsonb @> ${matJson}::jsonb`
+        ? Prisma.sql`categorias_produtos::jsonb @> ${matJson}::jsonb`
         : Prisma.sql`TRUE`;
 
     const fullSearch =
@@ -254,10 +253,7 @@ export class FornecedorService {
       nome_fantasia ILIKE ${searchPattern}
       OR razao_social ILIKE ${searchPattern}
       OR descricao_institucional ILIKE ${searchPattern}
-      OR materiais::text ILIKE ${searchPattern}
-      OR servicos::text ILIKE ${searchPattern}
       OR categorias_produtos::text ILIKE ${searchPattern}
-      OR setores::text ILIKE ${searchPattern}
     )`
         : Prisma.sql`TRUE`;
 

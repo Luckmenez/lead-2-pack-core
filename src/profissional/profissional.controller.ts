@@ -15,6 +15,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsString,
   IsUrl,
@@ -66,6 +67,13 @@ class UpdateProfissionalMeDto {
   @IsOptional()
   @IsString()
   redeSocial?: string;
+
+  @IsOptional()
+  @IsEnum(['mei', 'lucro_presumido', 'simples_nacional'], {
+    message:
+      'tipoEmpresa deve ser "mei", "lucro_presumido" ou "simples_nacional"',
+  })
+  tipoEmpresa?: string;
 
   @IsOptional()
   @IsArray()

@@ -73,6 +73,7 @@ model Profissional {
   emailPessoal          String   @map("email_pessoal")
   website               String?
   redeSocial            String?  @map("rede_social")
+  tipoEmpresa           String   @map("tipo_empresa")
   categoriasProdutos    Json     @map("categorias_produtos")
   materiais             Json
   servicos              Json

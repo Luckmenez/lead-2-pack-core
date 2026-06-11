@@ -449,6 +449,7 @@ export class AuthService {
     emailPessoal: string;
     website?: string;
     redeSocial?: string;
+    tipoEmpresa: string;
     categoriasProdutos: string[];
     materiais: string[];
     servicos: string[];

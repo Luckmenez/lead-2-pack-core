@@ -74,15 +74,18 @@ export class RegisterFornecedorDto {
 
   @IsArray()
   @IsString({ each: true })
-  materiais: string[];
+  @IsOptional()
+  materiais?: string[];
 
   @IsArray()
   @IsString({ each: true })
-  servicos: string[];
+  @IsOptional()
+  servicos?: string[];
 
   @IsArray()
   @IsString({ each: true })
-  setores: string[];
+  @IsOptional()
+  setores?: string[];
 
   @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })
   @IsString()
