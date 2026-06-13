@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -58,6 +63,113 @@ export class CompradorService {
         redeSocial: data.redeSocial ?? null,
       },
     });
+  }
+
+  async findMe(id: string) {
+    return this.prisma.comprador.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        nomeCompleto: true,
+        telefonePessoal: true,
+        whatsappPessoal: true,
+        cnpj: true,
+        razaoSocial: true,
+        nomeFantasia: true,
+        telefoneComercial: true,
+        whatsappComercial: true,
+        website: true,
+        redeSocial: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async updateMe(
+    id: string,
+    data: {
+      nomeCompleto?: string;
+      email?: string;
+      telefonePessoal?: string;
+      whatsappPessoal?: string;
+      telefoneComercial?: string;
+      whatsappComercial?: string;
+      razaoSocial?: string;
+      nomeFantasia?: string | null;
+      website?: string;
+      redeSocial?: string;
+    },
+  ) {
+    const updateData: Prisma.CompradorUpdateInput = {};
+
+    if (data.nomeCompleto !== undefined)
+      updateData.nomeCompleto = data.nomeCompleto;
+    if (data.email !== undefined) {
+      const email = data.email.trim().toLowerCase();
+      const existente = await this.prisma.comprador.findFirst({
+        where: { email, NOT: { id } },
+      });
+      if (existente) {
+        throw new ConflictException('E-mail já cadastrado');
+      }
+      updateData.email = email;
+    }
+    if (data.telefonePessoal !== undefined)
+      updateData.telefonePessoal = data.telefonePessoal
+        .replace(/\D/g, '')
+        .slice(0, 11);
+    if (data.whatsappPessoal !== undefined)
+      updateData.whatsappPessoal = data.whatsappPessoal
+        .replace(/\D/g, '')
+        .slice(0, 11);
+    if (data.telefoneComercial !== undefined)
+      updateData.telefoneComercial = data.telefoneComercial
+        .replace(/\D/g, '')
+        .slice(0, 11);
+    if (data.whatsappComercial !== undefined)
+      updateData.whatsappComercial = data.whatsappComercial
+        .replace(/\D/g, '')
+        .slice(0, 11);
+    if (data.razaoSocial !== undefined)
+      updateData.razaoSocial = data.razaoSocial;
+    if (data.nomeFantasia !== undefined)
+      updateData.nomeFantasia = data.nomeFantasia;
+    if (data.website !== undefined) updateData.website = data.website || null;
+    if (data.redeSocial !== undefined)
+      updateData.redeSocial = data.redeSocial || null;
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException(
+        'Ao menos um campo deve ser informado para atualização',
+      );
+    }
+
+    try {
+      return await this.prisma.comprador.update({
+        where: { id },
+        data: updateData,
+        select: {
+          id: true,
+          email: true,
+          nomeCompleto: true,
+          telefonePessoal: true,
+          whatsappPessoal: true,
+          cnpj: true,
+          razaoSocial: true,
+          nomeFantasia: true,
+          telefoneComercial: true,
+          whatsappComercial: true,
+          website: true,
+          redeSocial: true,
+          createdAt: true,
+        },
+      });
+    } catch (e) {
+      if (e?.code === 'P2025')
+        throw new NotFoundException('Comprador não encontrado');
+      throw e;
+    }
   }
 
   async findAll(params: { page?: number; limit?: number; search?: string }) {

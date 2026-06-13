@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { FornecedorService } from './fornecedor.service';
@@ -133,7 +135,8 @@ export class FornecedorController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('fornecedor')
   async getMe(@CurrentUser() user: JwtPayload) {
     const perfil = await this.fornecedorService.findMe(user.sub);
     if (!perfil) throw new NotFoundException('Fornecedor não encontrado');
@@ -141,7 +144,8 @@ export class FornecedorController {
   }
 
   @Patch('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('fornecedor')
   async updateMe(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateFornecedorMeDto,
@@ -152,7 +156,8 @@ export class FornecedorController {
   }
 
   @Patch('portfolio')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('fornecedor')
   async updatePortfolio(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdatePortfolioDto,

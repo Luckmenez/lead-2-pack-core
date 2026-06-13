@@ -8,6 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { ProfissionalService } from './profissional.service';
@@ -112,7 +114,8 @@ export class ProfissionalController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async getMe(@CurrentUser() user: JwtPayload) {
     const perfil = await this.profissionalService.findMe(user.sub);
     if (!perfil) throw new NotFoundException('Profissional não encontrado');
@@ -120,7 +123,8 @@ export class ProfissionalController {
   }
 
   @Patch('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async updateMe(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateProfissionalMeDto,
@@ -131,7 +135,8 @@ export class ProfissionalController {
   }
 
   @Patch('portfolio')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async updatePortfolio(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdatePortfolioDto,
