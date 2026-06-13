@@ -46,21 +46,15 @@ export class RegisterProfissionalDto {
   @IsString()
   redeSocial?: string;
 
+  @IsNotEmpty({ message: 'Tipo de empresa é obrigatório' })
+  @IsEnum(['mei', 'lucro_presumido', 'simples_nacional'], {
+    message: 'Tipo de empresa inválido',
+  })
+  tipoEmpresa: 'mei' | 'lucro_presumido' | 'simples_nacional';
+
   @IsArray()
   @IsString({ each: true })
   categoriasProdutos: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  materiais: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  servicos: string[];
-
-  @IsArray()
-  @IsString({ each: true })
-  setores: string[];
 
   @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })
   @IsString()

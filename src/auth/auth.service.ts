@@ -127,9 +127,6 @@ export class AuthService {
     numeroInscricao: string;
     tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -334,31 +331,6 @@ export class AuthService {
     };
   }
 
-  async loginFornecedor(email: string, senha: string) {
-    const fornecedor = await this.fornecedorService.findByEmail(email);
-    if (!fornecedor) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-    const senhaValida = await bcrypt.compare(senha, fornecedor.senhaHash);
-    if (!senhaValida) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-    const payload = {
-      sub: fornecedor.id,
-      email: fornecedor.email,
-      tipo: 'fornecedor',
-    };
-    const accessToken = this.jwtService.sign(payload);
-    return {
-      accessToken,
-      fornecedor: {
-        id: fornecedor.id,
-        email: fornecedor.email,
-        nomeFantasia: fornecedor.nomeFantasia,
-      },
-    };
-  }
-
   async solicitarRecuperacaoSenha(email: string): Promise<void> {
     const emailNorm = email.trim().toLowerCase();
 
@@ -449,10 +421,8 @@ export class AuthService {
     emailPessoal: string;
     website?: string;
     redeSocial?: string;
+    tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -477,7 +447,7 @@ export class AuthService {
     });
     const payload = {
       sub: profissional.id,
-      cpf: profissional.cpf,
+      email: profissional.emailPessoal,
       tipo: 'profissional',
     };
     const accessToken = this.jwtService.sign(payload);

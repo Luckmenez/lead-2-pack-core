@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { MATERIAIS_FILTRO_OPCOES } from '../catalog/materiais-cadastro';
+import { PROFISSIONAL_CATEGORIAS_FILTRO } from '../catalog/categorias-cadastro';
 import { PrismaService } from '../prisma/prisma.service';
 
 type ProfissionalListagem = {
@@ -13,9 +13,6 @@ type ProfissionalListagem = {
   apelido: string;
   descricaoInstitucional: string;
   categoriasProdutos: unknown;
-  materiais: unknown;
-  servicos: unknown;
-  setores: unknown;
   website: string | null;
   redeSocial: string | null;
   portfolioUrls: unknown;
@@ -51,10 +48,8 @@ export class ProfissionalService {
         emailPessoal: true,
         website: true,
         redeSocial: true,
+        tipoEmpresa: true,
         categoriasProdutos: true,
-        materiais: true,
-        servicos: true,
-        setores: true,
         descricaoInstitucional: true,
         portfolioUrls: true,
         formaPagamento: true,
@@ -79,10 +74,8 @@ export class ProfissionalService {
     emailPessoal: string;
     website?: string;
     redeSocial?: string;
+    tipoEmpresa: string;
     categoriasProdutos: string[];
-    materiais: string[];
-    servicos: string[];
-    setores: string[];
     descricaoInstitucional: string;
     portfolioUrls?: string[];
     formaPagamento: string;
@@ -104,10 +97,8 @@ export class ProfissionalService {
         emailPessoal: data.emailPessoal,
         website: data.website ?? null,
         redeSocial: data.redeSocial ?? null,
+        tipoEmpresa: data.tipoEmpresa,
         categoriasProdutos: data.categoriasProdutos,
-        materiais: data.materiais,
-        servicos: data.servicos,
-        setores: data.setores,
         descricaoInstitucional: data.descricaoInstitucional,
         portfolioUrls: data.portfolioUrls ?? [],
         formaPagamento: data.formaPagamento,
@@ -125,10 +116,8 @@ export class ProfissionalService {
       emailPessoal?: string;
       website?: string;
       redeSocial?: string;
+      tipoEmpresa?: string;
       categoriasProdutos?: string[];
-      materiais?: string[];
-      servicos?: string[];
-      setores?: string[];
       descricaoInstitucional?: string;
     },
   ) {
@@ -150,11 +139,10 @@ export class ProfissionalService {
     if (data.website !== undefined) updateData.website = data.website || null;
     if (data.redeSocial !== undefined)
       updateData.redeSocial = data.redeSocial || null;
+    if (data.tipoEmpresa !== undefined)
+      updateData.tipoEmpresa = data.tipoEmpresa;
     if (data.categoriasProdutos !== undefined)
       updateData.categoriasProdutos = data.categoriasProdutos;
-    if (data.materiais !== undefined) updateData.materiais = data.materiais;
-    if (data.servicos !== undefined) updateData.servicos = data.servicos;
-    if (data.setores !== undefined) updateData.setores = data.setores;
     if (data.descricaoInstitucional !== undefined)
       updateData.descricaoInstitucional = data.descricaoInstitucional;
 
@@ -178,10 +166,8 @@ export class ProfissionalService {
           emailPessoal: true,
           website: true,
           redeSocial: true,
+          tipoEmpresa: true,
           categoriasProdutos: true,
-          materiais: true,
-          servicos: true,
-          setores: true,
           descricaoInstitucional: true,
           portfolioUrls: true,
           formaPagamento: true,
@@ -215,50 +201,34 @@ export class ProfissionalService {
     const search = params.search?.trim();
     const materialRaw = params.material?.trim();
     const material =
-      materialRaw && MATERIAIS_FILTRO_OPCOES.includes(materialRaw)
+      materialRaw && PROFISSIONAL_CATEGORIAS_FILTRO.includes(materialRaw)
         ? materialRaw
         : undefined;
 
-    const searchPattern = search ? `%${search}%` : null;
+    const searchPattern = search ? `${search}%` : null;
     const matJson = material ? JSON.stringify([material]) : null;
 
     const matCond =
       matJson != null
-        ? Prisma.sql`materiais::jsonb @> ${matJson}::jsonb`
+        ? Prisma.sql`categorias_produtos::jsonb @> ${matJson}::jsonb`
         : Prisma.sql`TRUE`;
 
-    const fullSearch =
-      searchPattern != null
-        ? Prisma.sql`(
-      nome_completo ILIKE ${searchPattern}
-      OR apelido ILIKE ${searchPattern}
-      OR descricao_institucional ILIKE ${searchPattern}
-      OR materiais::text ILIKE ${searchPattern}
-      OR servicos::text ILIKE ${searchPattern}
-      OR categorias_produtos::text ILIKE ${searchPattern}
-      OR setores::text ILIKE ${searchPattern}
-    )`
-        : Prisma.sql`TRUE`;
-
-    const nameMatch =
+    const namePrefix =
       searchPattern != null
         ? Prisma.sql`(
       nome_completo ILIKE ${searchPattern}
       OR apelido ILIKE ${searchPattern}
     )`
-        : Prisma.sql`FALSE`;
+        : Prisma.sql`TRUE`;
 
-    const whereClause = Prisma.sql`WHERE (
-      (${matCond} AND ${fullSearch})
-      OR ${nameMatch}
-    )`;
+    const whereClause = Prisma.sql`WHERE ${matCond} AND ${namePrefix}`;
 
     const [rows, countRows] = await Promise.all([
       this.prisma.$queryRaw<ProfissionalListagem[]>`
         SELECT id, nome_completo as "nomeCompleto", apelido,
           descricao_institucional as "descricaoInstitucional",
           categorias_produtos as "categoriasProdutos",
-          materiais, servicos, setores, website, rede_social as "redeSocial",
+          website, rede_social as "redeSocial",
           portfolio_urls as "portfolioUrls"
         FROM profissionais
         ${whereClause}

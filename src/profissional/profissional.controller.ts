@@ -8,6 +8,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
 import { ProfissionalService } from './profissional.service';
@@ -15,6 +17,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsString,
   IsUrl,
@@ -68,28 +71,17 @@ class UpdateProfissionalMeDto {
   redeSocial?: string;
 
   @IsOptional()
+  @IsEnum(['mei', 'lucro_presumido', 'simples_nacional'], {
+    message:
+      'tipoEmpresa deve ser "mei", "lucro_presumido" ou "simples_nacional"',
+  })
+  tipoEmpresa?: string;
+
+  @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
   @IsString({ each: true })
   categoriasProdutos?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  materiais?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  servicos?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  setores?: string[];
 
   @IsOptional()
   @IsString()
@@ -122,7 +114,8 @@ export class ProfissionalController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async getMe(@CurrentUser() user: JwtPayload) {
     const perfil = await this.profissionalService.findMe(user.sub);
     if (!perfil) throw new NotFoundException('Profissional não encontrado');
@@ -130,7 +123,8 @@ export class ProfissionalController {
   }
 
   @Patch('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async updateMe(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdateProfissionalMeDto,
@@ -141,7 +135,8 @@ export class ProfissionalController {
   }
 
   @Patch('portfolio')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('profissional')
   async updatePortfolio(
     @CurrentUser() user: JwtPayload,
     @Body() dto: UpdatePortfolioDto,
