@@ -7,6 +7,7 @@ import { FornecedorModule } from './fornecedor/fornecedor.module';
 import { ProfissionalModule } from './profissional/profissional.module';
 import { AuthModule } from './auth/auth.module';
 import { ContatoModule } from './contato/contato.module';
+import { CatalogModule } from './catalog/catalog.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ContatoModule } from './contato/contato.module';
     ProfissionalModule,
     AuthModule,
     ContatoModule,
+    CatalogModule,
   ],
   controllers: [AppController],
   providers: [AppService],

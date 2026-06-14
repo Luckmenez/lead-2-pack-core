@@ -33,12 +33,6 @@ export class AuthController {
     return this.authService.login(dto.email, dto.senha);
   }
 
-  @Post('comprador/login')
-  @HttpCode(HttpStatus.OK)
-  async loginComprador(@Body() dto: LoginCompradorDto) {
-    return this.authService.loginComprador(dto.email, dto.senha);
-  }
-
   @Post('fornecedor/register')
   async registerFornecedor(@Body() dto: RegisterFornecedorDto) {
     return this.authService.registerFornecedor(dto);

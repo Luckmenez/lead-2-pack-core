@@ -82,35 +82,6 @@ export class AuthService {
     };
   }
 
-  async loginComprador(email: string, senha: string) {
-    const comprador = await this.compradorService.findByEmail(email);
-
-    if (!comprador) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-
-    const senhaValida = await bcrypt.compare(senha, comprador.senhaHash);
-    if (!senhaValida) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-
-    const payload = {
-      sub: comprador.id,
-      email: comprador.email,
-      tipo: 'comprador',
-    };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      comprador: {
-        id: comprador.id,
-        nomeCompleto: comprador.nomeCompleto,
-        email: comprador.email,
-      },
-    };
-  }
-
   async registerFornecedor(dto: {
     email: string;
     senha: string;

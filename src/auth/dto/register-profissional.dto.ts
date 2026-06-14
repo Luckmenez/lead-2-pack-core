@@ -1,7 +1,9 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEmail,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -10,6 +12,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { PROFISSIONAL_CATEGORIAS } from '../../catalog/categorias-cadastro';
 
 const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -53,7 +56,11 @@ export class RegisterProfissionalDto {
   tipoEmpresa: 'mei' | 'lucro_presumido' | 'simples_nacional';
 
   @IsArray()
-  @IsString({ each: true })
+  @ArrayNotEmpty({ message: 'Selecione ao menos uma categoria' })
+  @IsIn([...PROFISSIONAL_CATEGORIAS], {
+    each: true,
+    message: 'categoria inválida',
+  })
   categoriasProdutos: string[];
 
   @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })

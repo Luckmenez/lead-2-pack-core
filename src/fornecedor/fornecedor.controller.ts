@@ -13,6 +13,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
+import { FORNECEDOR_CATEGORIAS } from '../catalog/categorias-cadastro';
 import { FornecedorService } from './fornecedor.service';
 import {
   ArrayNotEmpty,
@@ -101,7 +102,10 @@ class UpdateFornecedorMeDto {
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
-  @IsString({ each: true })
+  @IsIn([...FORNECEDOR_CATEGORIAS], {
+    each: true,
+    message: 'categoria inválida',
+  })
   categoriasProdutos?: string[];
 
   @IsOptional()
@@ -165,3 +169,4 @@ export class FornecedorController {
     return this.fornecedorService.updatePortfolio(user.sub, dto.portfolioUrls);
   }
 }
+ 
