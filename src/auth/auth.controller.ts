@@ -1,4 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginCompradorDto } from './dto/login-comprador.dto';
 import { LoginSelecionarPerfilDto } from './dto/login-selecionar-perfil.dto';
@@ -7,6 +15,10 @@ import { RegisterFornecedorDto } from './dto/register-fornecedor.dto';
 import { RegisterProfissionalDto } from './dto/register-profissional.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { TrocarPerfilDto } from './dto/trocar-perfil.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { JwtPayload } from './strategies/jwt.strategy';
 
 @Controller('auth')
 export class AuthController {
@@ -15,6 +27,22 @@ export class AuthController {
   @Post('comprador/register')
   async registerComprador(@Body() dto: RegisterCompradorDto) {
     return this.authService.registerComprador(dto);
+  }
+
+  @Get('perfis-vinculados')
+  @UseGuards(JwtAuthGuard)
+  async getPerfisVinculados(@CurrentUser() user: JwtPayload) {
+    return this.authService.getPerfisVinculados(user.email, user.tipo);
+  }
+
+  @Post('trocar-perfil')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async trocarPerfil(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: TrocarPerfilDto,
+  ) {
+    return this.authService.trocarPerfil(user.email, dto.perfil);
   }
 
   @Post('login/selecionar-perfil')
