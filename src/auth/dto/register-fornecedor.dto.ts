@@ -11,18 +11,25 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { FORNECEDOR_CATEGORIAS } from '../../catalog/categorias-cadastro';
+import { normalizeWebsite } from '../../utils/website';
 
 const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export class RegisterFornecedorDto {
   @IsNotEmpty({ message: 'Telefone é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefone deve conter apenas dígitos (10 ou 11)',
+  })
   telefone: string;
 
   @IsNotEmpty({ message: 'WhatsApp é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsapp deve conter apenas dígitos (10 ou 11)',
+  })
   whatsapp: string;
 
   @IsNotEmpty({ message: 'E-mail é obrigatório' })
@@ -42,7 +49,12 @@ export class RegisterFornecedorDto {
   nomeFantasia: string;
 
   @IsOptional()
-  @IsString()
+  @Transform(({ value }) => normalizeWebsite(value))
+  @ValidateIf((o) => o.website !== undefined && o.website !== '')
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'website deve ser uma URL válida com http:// ou https://' },
+  )
   website: string;
 
   @IsOptional()
@@ -54,7 +66,9 @@ export class RegisterFornecedorDto {
   cidade: string;
 
   @IsNotEmpty({ message: 'Estado é obrigatório' })
-  @IsString()
+  @Matches(/^[A-Z]{2}$/, {
+    message: 'estado deve ser uma UF válida com 2 letras maiúsculas',
+  })
   estado: string;
 
   @IsNotEmpty({ message: 'Tipo de inscrição é obrigatório' })

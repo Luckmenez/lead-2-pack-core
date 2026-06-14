@@ -402,7 +402,12 @@ export class AuthService {
     if (existente) {
       throw new ConflictException('CPF já cadastrado');
     }
-    const emailProfissional = dto.emailPessoal.trim();
+    const emailProfissional = dto.emailPessoal.trim().toLowerCase();
+    const profissionalExistente =
+      await this.profissionalService.findByEmailPessoal(emailProfissional);
+    if (profissionalExistente) {
+      throw new ConflictException('E-mail já cadastrado');
+    }
     const [compradorComEmail, fornecedorComEmail] = await Promise.all([
       this.compradorService.findByEmail(emailProfissional),
       this.fornecedorService.findByEmail(emailProfissional),

@@ -67,7 +67,7 @@ model Profissional {
   apelido               String
   telefonePessoal       String   @map("telefone_pessoal")
   whatsappPessoal       String   @map("whatsapp_pessoal")
-  emailPessoal          String   @map("email_pessoal")
+  emailPessoal          String   @unique @map("email_pessoal")
   website               String?
   redeSocial            String?  @map("rede_social")
   tipoEmpresa           String   @map("tipo_empresa")

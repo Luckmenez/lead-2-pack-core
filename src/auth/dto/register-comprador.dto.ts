@@ -3,9 +3,13 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { normalizeWebsite } from '../../utils/website';
 
 const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -15,11 +19,15 @@ export class RegisterCompradorDto {
   nomeCompleto: string;
 
   @IsNotEmpty({ message: 'Telefone pessoal é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefonePessoal deve conter apenas dígitos (10 ou 11)',
+  })
   telefonePessoal: string;
 
   @IsNotEmpty({ message: 'WhatsApp pessoal é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsappPessoal deve conter apenas dígitos (10 ou 11)',
+  })
   whatsappPessoal: string;
 
   @IsNotEmpty({ message: 'E-mail é obrigatório' })
@@ -39,15 +47,24 @@ export class RegisterCompradorDto {
   nomeFantasia?: string;
 
   @IsNotEmpty({ message: 'Telefone comercial é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefoneComercial deve conter apenas dígitos (10 ou 11)',
+  })
   telefoneComercial: string;
 
   @IsNotEmpty({ message: 'WhatsApp comercial é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsappComercial deve conter apenas dígitos (10 ou 11)',
+  })
   whatsappComercial: string;
 
   @IsOptional()
-  @IsString()
+  @Transform(({ value }) => normalizeWebsite(value))
+  @ValidateIf((o) => o.website !== undefined && o.website !== '')
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'website deve ser uma URL válida com http:// ou https://' },
+  )
   website?: string;
 
   @IsOptional()

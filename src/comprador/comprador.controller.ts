@@ -84,6 +84,8 @@ export class CompradorController {
   constructor(private readonly compradorService: CompradorService) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('fornecedor', 'profissional')
   async findAll(
     @Query('page') page?: string,
     @Query('limit') limit?: string,

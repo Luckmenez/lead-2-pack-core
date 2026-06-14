@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { CompradorModule } from './comprador/comprador.module';
 import { FornecedorModule } from './fornecedor/fornecedor.module';
@@ -19,7 +17,5 @@ import { CatalogModule } from './catalog/catalog.module';
     ContatoModule,
     CatalogModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
