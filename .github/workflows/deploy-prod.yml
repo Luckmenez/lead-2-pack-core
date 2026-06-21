@@ -1,0 +1,65 @@
+name: Deploy → Prod
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_TAG: prod-${{ github.sha }}
+
+jobs:
+  deploy:
+    name: Build & Deploy (prod)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:prod-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:prod-latest
+
+      - name: Deploy to Prod EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:prod-latest
+
+            docker stop lead-to-pack-prod || true
+            docker rm lead-to-pack-prod || true
+
+            docker run -d \
+              --name lead-to-pack-prod \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              --env-file /home/ubuntu/.env.prod \
+              ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:prod-latest
+
+            docker exec lead-to-pack-prod npx prisma migrate deploy
+
+            docker image prune -f

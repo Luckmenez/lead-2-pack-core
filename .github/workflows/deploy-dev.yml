@@ -1,0 +1,65 @@
+name: Deploy → Dev
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+  IMAGE_TAG: dev-${{ github.sha }}
+
+jobs:
+  deploy:
+    name: Build & Deploy (dev)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:dev-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev-latest
+
+      - name: Deploy to Dev EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEV_EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+            docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dev-latest
+
+            docker stop lead-to-pack-dev || true
+            docker rm lead-to-pack-dev || true
+
+            docker run -d \
+              --name lead-to-pack-dev \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              --env-file /home/ubuntu/.env.dev \
+              ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:dev-latest
+
+            docker exec lead-to-pack-dev npx prisma migrate deploy
+
+            docker image prune -f
