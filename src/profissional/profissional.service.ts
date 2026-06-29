@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -24,6 +25,10 @@ export class ProfissionalService {
 
   normalizeCpf(cpf: string): string {
     return cpf.replace(/\D/g, '').slice(0, 11);
+  }
+
+  normalizeEmailPessoal(email: string): string {
+    return email.trim().toLowerCase();
   }
 
   async findByCpf(cpf: string) {
@@ -59,8 +64,9 @@ export class ProfissionalService {
   }
 
   async findByEmailPessoal(email: string) {
-    return this.prisma.profissional.findFirst({
-      where: { emailPessoal: { equals: email.trim(), mode: 'insensitive' } },
+    const emailPessoal = this.normalizeEmailPessoal(email);
+    return this.prisma.profissional.findUnique({
+      where: { emailPessoal },
     });
   }
 
@@ -85,6 +91,7 @@ export class ProfissionalService {
     const senhaHash = await bcrypt.hash(data.senha, 10);
     const telefoneDigits = data.telefonePessoal.replace(/\D/g, '').slice(0, 11);
     const whatsappDigits = data.whatsappPessoal.replace(/\D/g, '').slice(0, 11);
+    const emailPessoal = this.normalizeEmailPessoal(data.emailPessoal);
 
     return this.prisma.profissional.create({
       data: {
@@ -94,7 +101,7 @@ export class ProfissionalService {
         apelido: data.apelido,
         telefonePessoal: telefoneDigits,
         whatsappPessoal: whatsappDigits,
-        emailPessoal: data.emailPessoal,
+        emailPessoal,
         website: data.website ?? null,
         redeSocial: data.redeSocial ?? null,
         tipoEmpresa: data.tipoEmpresa,
@@ -134,8 +141,25 @@ export class ProfissionalService {
       updateData.whatsappPessoal = data.whatsappPessoal
         .replace(/\D/g, '')
         .slice(0, 11);
-    if (data.emailPessoal !== undefined)
-      updateData.emailPessoal = data.emailPessoal;
+    if (data.emailPessoal !== undefined) {
+      const emailPessoal = this.normalizeEmailPessoal(data.emailPessoal);
+      const existente = await this.prisma.profissional.findFirst({
+        where: { emailPessoal, NOT: { id } },
+      });
+      if (existente) {
+        throw new ConflictException('E-mail já cadastrado');
+      }
+      const [comprador, fornecedor] = await Promise.all([
+        this.prisma.comprador.findUnique({ where: { email: emailPessoal } }),
+        this.prisma.fornecedor.findUnique({ where: { email: emailPessoal } }),
+      ]);
+      if (comprador || fornecedor) {
+        throw new ConflictException(
+          'Este e-mail já está em uso como comprador ou fornecedor. O perfil profissional não pode compartilhar o mesmo e-mail.',
+        );
+      }
+      updateData.emailPessoal = emailPessoal;
+    }
     if (data.website !== undefined) updateData.website = data.website || null;
     if (data.redeSocial !== undefined)
       updateData.redeSocial = data.redeSocial || null;
@@ -177,6 +201,9 @@ export class ProfissionalService {
     } catch (e) {
       if (e?.code === 'P2025')
         throw new NotFoundException('Profissional não encontrado');
+      if (e?.code === 'P2002') {
+        throw new ConflictException('E-mail já cadastrado');
+      }
       throw e;
     }
   }

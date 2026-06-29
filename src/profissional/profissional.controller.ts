@@ -12,12 +12,14 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtPayload } from '../auth/strategies/jwt.strategy';
+import { PROFISSIONAL_CATEGORIAS } from '../catalog/categorias-cadastro';
 import { ProfissionalService } from './profissional.service';
 import {
   ArrayNotEmpty,
   IsArray,
   IsEmail,
   IsEnum,
+  IsIn,
   IsOptional,
   IsString,
   IsUrl,
@@ -80,7 +82,10 @@ class UpdateProfissionalMeDto {
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
-  @IsString({ each: true })
+  @IsIn([...PROFISSIONAL_CATEGORIAS], {
+    each: true,
+    message: 'categoria inválida',
+  })
   categoriasProdutos?: string[];
 
   @IsOptional()

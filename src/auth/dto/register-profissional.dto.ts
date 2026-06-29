@@ -1,7 +1,9 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEmail,
   IsEnum,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -9,7 +11,11 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { PROFISSIONAL_CATEGORIAS } from '../../catalog/categorias-cadastro';
+import { normalizeWebsite } from '../../utils/website';
 
 const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
@@ -27,11 +33,15 @@ export class RegisterProfissionalDto {
   apelido: string;
 
   @IsNotEmpty({ message: 'Telefone pessoal é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'telefonePessoal deve conter apenas dígitos (10 ou 11)',
+  })
   telefonePessoal: string;
 
   @IsNotEmpty({ message: 'WhatsApp pessoal é obrigatório' })
-  @IsString()
+  @Matches(/^\d{10,11}$/, {
+    message: 'whatsappPessoal deve conter apenas dígitos (10 ou 11)',
+  })
   whatsappPessoal: string;
 
   @IsNotEmpty({ message: 'E-mail é obrigatório' })
@@ -39,7 +49,12 @@ export class RegisterProfissionalDto {
   emailPessoal: string;
 
   @IsOptional()
-  @IsString()
+  @Transform(({ value }) => normalizeWebsite(value))
+  @ValidateIf((o) => o.website !== undefined && o.website !== '')
+  @IsUrl(
+    { protocols: ['http', 'https'], require_protocol: true },
+    { message: 'website deve ser uma URL válida com http:// ou https://' },
+  )
   website?: string;
 
   @IsOptional()
@@ -53,7 +68,11 @@ export class RegisterProfissionalDto {
   tipoEmpresa: 'mei' | 'lucro_presumido' | 'simples_nacional';
 
   @IsArray()
-  @IsString({ each: true })
+  @ArrayNotEmpty({ message: 'Selecione ao menos uma categoria' })
+  @IsIn([...PROFISSIONAL_CATEGORIAS], {
+    each: true,
+    message: 'categoria inválida',
+  })
   categoriasProdutos: string[];
 
   @IsNotEmpty({ message: 'Descrição institucional é obrigatória' })

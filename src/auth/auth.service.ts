@@ -82,35 +82,6 @@ export class AuthService {
     };
   }
 
-  async loginComprador(email: string, senha: string) {
-    const comprador = await this.compradorService.findByEmail(email);
-
-    if (!comprador) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-
-    const senhaValida = await bcrypt.compare(senha, comprador.senhaHash);
-    if (!senhaValida) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
-    }
-
-    const payload = {
-      sub: comprador.id,
-      email: comprador.email,
-      tipo: 'comprador',
-    };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      comprador: {
-        id: comprador.id,
-        nomeCompleto: comprador.nomeCompleto,
-        email: comprador.email,
-      },
-    };
-  }
-
   async registerFornecedor(dto: {
     email: string;
     senha: string;
@@ -232,6 +203,61 @@ export class AuthService {
     }
 
     throw new UnauthorizedException('E-mail ou senha inválidos');
+  }
+
+  async getPerfisVinculados(email: string, perfilAtual: string) {
+    if (perfilAtual === 'profissional') {
+      return {
+        temMultiPerfil: false as const,
+        perfilAtual: 'profissional' as const,
+      };
+    }
+
+    const [comprador, fornecedor] = await Promise.all([
+      this.compradorService.findByEmail(email),
+      this.fornecedorService.findByEmail(email),
+    ]);
+
+    const temMultiPerfil = Boolean(comprador && fornecedor);
+
+    if (!temMultiPerfil) {
+      return {
+        temMultiPerfil: false as const,
+        perfilAtual: perfilAtual as 'comprador' | 'fornecedor',
+      };
+    }
+
+    return {
+      temMultiPerfil: true as const,
+      perfilAtual: perfilAtual as 'comprador' | 'fornecedor',
+      comprador: {
+        id: comprador!.id,
+        nomeCompleto: comprador!.nomeCompleto,
+        email: comprador!.email,
+      },
+      fornecedor: {
+        id: fornecedor!.id,
+        email: fornecedor!.email,
+        nomeFantasia: fornecedor!.nomeFantasia,
+      },
+    };
+  }
+
+  async trocarPerfil(email: string, perfil: PerfilLoginSelecao) {
+    const comprador = await this.compradorService.findByEmail(email);
+    const fornecedor = await this.fornecedorService.findByEmail(email);
+
+    if (!comprador || !fornecedor) {
+      throw new BadRequestException(
+        'Este e-mail não possui os dois perfis (comprador e fornecedor).',
+      );
+    }
+
+    if (perfil === PerfilLoginSelecao.comprador) {
+      return this.emitirLoginComprador(comprador);
+    }
+
+    return this.emitirLoginFornecedor(fornecedor);
   }
 
   async loginSelecionarPerfil(
@@ -431,7 +457,12 @@ export class AuthService {
     if (existente) {
       throw new ConflictException('CPF já cadastrado');
     }
-    const emailProfissional = dto.emailPessoal.trim();
+    const emailProfissional = dto.emailPessoal.trim().toLowerCase();
+    const profissionalExistente =
+      await this.profissionalService.findByEmailPessoal(emailProfissional);
+    if (profissionalExistente) {
+      throw new ConflictException('E-mail já cadastrado');
+    }
     const [compradorComEmail, fornecedorComEmail] = await Promise.all([
       this.compradorService.findByEmail(emailProfissional),
       this.fornecedorService.findByEmail(emailProfissional),
