@@ -87,4 +87,16 @@ export class AuthController {
     await this.authService.redefinirSenha(dto.token, dto.novaSenha);
     return { message: 'Senha redefinida com sucesso.' };
   }
+
+  @Post('admin/login')
+  @HttpCode(HttpStatus.OK)
+  async loginAdmin(@Body() dto: LoginCompradorDto) {
+    return this.authService.loginAdmin(dto.email, dto.senha);
+  }
+
+  @Post('colaborador/aceitar-convite')
+  @HttpCode(HttpStatus.OK)
+  async aceitarConvite(@Body() dto: { token: string; senha: string }) {
+    return this.authService.aceitarConviteColaborador(dto.token, dto.senha);
+  }
 }

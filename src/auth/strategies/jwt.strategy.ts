@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 export type JwtPayload = {
   sub: string;
   email: string;
-  tipo: 'comprador' | 'fornecedor' | 'profissional';
+  tipo: 'comprador' | 'fornecedor' | 'profissional' | 'admin';
 };
 
 @Injectable()

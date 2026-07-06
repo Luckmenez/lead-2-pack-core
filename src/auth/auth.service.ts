@@ -66,6 +66,7 @@ export class AuthService {
       }
     }
     const comprador = await this.compradorService.create(dto);
+    this.mailService.sendWelcomeEmail(comprador.email, comprador.nomeCompleto).catch(() => null);
     const payload = {
       sub: comprador.id,
       email: comprador.email,
@@ -128,6 +129,7 @@ export class AuthService {
       }
     }
     const fornecedor = await this.fornecedorService.create(dto);
+    this.mailService.sendWelcomeEmail(fornecedor.email, fornecedor.nomeFantasia).catch(() => null);
     const payload = {
       sub: fornecedor.id,
       email: fornecedor.email,
@@ -476,6 +478,7 @@ export class AuthService {
       ...dto,
       emailPessoal: emailProfissional,
     });
+    this.mailService.sendWelcomeEmail(profissional.emailPessoal, profissional.nomeCompleto).catch(() => null);
     const payload = {
       sub: profissional.id,
       email: profissional.emailPessoal,
@@ -491,5 +494,46 @@ export class AuthService {
         emailPessoal: profissional.emailPessoal,
       },
     };
+  }
+
+  async loginAdmin(email: string, senha: string) {
+    const collaborator = await this.prisma.collaborator.findUnique({
+      where: { email: email.trim().toLowerCase() },
+    });
+
+    if (!collaborator || !collaborator.senhaHash || !collaborator.inviteAcceptedAt) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    if (!(await bcrypt.compare(senha, collaborator.senhaHash))) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    const payload = { sub: collaborator.id, email: collaborator.email, tipo: 'admin' as const };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken, admin: { email: collaborator.email, nome: collaborator.nome } };
+  }
+
+  async aceitarConviteColaborador(token: string, senha: string) {
+    const collaborator = await this.prisma.collaborator.findUnique({
+      where: { inviteToken: token },
+    });
+
+    if (!collaborator) {
+      throw new NotFoundException('Link de convite inválido ou expirado.');
+    }
+    if (collaborator.inviteAcceptedAt) {
+      throw new BadRequestException('Este convite já foi utilizado.');
+    }
+
+    const senhaHash = await bcrypt.hash(senha, 10);
+    await this.prisma.collaborator.update({
+      where: { id: collaborator.id },
+      data: { senhaHash, inviteToken: null, inviteAcceptedAt: new Date() },
+    });
+
+    const payload = { sub: collaborator.id, email: collaborator.email, tipo: 'admin' as const };
+    const accessToken = this.jwtService.sign(payload);
+    return { accessToken, admin: { email: collaborator.email, nome: collaborator.nome } };
   }
 }

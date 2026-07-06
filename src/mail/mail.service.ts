@@ -63,6 +63,64 @@ export class MailService implements OnModuleInit {
     this.logger.log(`E-mail enviado para ${params.to}`);
   }
 
+  async sendCollaboratorInvite(to: string, nome: string, role: string, inviteLink: string): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn('Email não configurado — convite não enviado.');
+      return;
+    }
+    const from = process.env.MAIL_FROM?.trim() || `Lead2Pack <${process.env.MAIL_USER}>`;
+    const roleLabel = role === 'admin' ? 'Administrador' : 'Suporte';
+    const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;color:#1a1a1a;">
+  <p style="font-weight:600;margin:0 0 12px;">Você foi convidado para a plataforma Lead2Pack</p>
+  <p>Olá, <strong>${escapeHtml(nome)}</strong>!</p>
+  <p>Você foi adicionado como <strong>${roleLabel}</strong> no painel administrativo da Lead2Pack.</p>
+  <p>Clique no botão abaixo para criar sua senha e acessar o painel:</p>
+  <p style="margin:24px 0;">
+    <a href="${inviteLink}" style="background:#0B2443;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Criar minha senha</a>
+  </p>
+  <p style="font-size:13px;color:#666;">O link é válido por 48 horas.</p>
+  <p style="font-size:13px;color:#666;">Link direto: <a href="${inviteLink}">${inviteLink}</a></p>
+  <p style="margin-top:20px;font-size:13px;color:#666;">— Mensagem automática Lead2Pack</p>
+</div>`;
+    await this.transporter.sendMail({
+      from, to,
+      subject: 'Convite para o painel administrativo — Lead2Pack',
+      text: `Você foi convidado como ${roleLabel} no painel Lead2Pack.\n\nCrie sua senha: ${inviteLink}\n\n(Link válido por 48 horas)`,
+      html,
+    });
+    this.logger.log(`E-mail de convite enviado para ${to}`);
+  }
+
+  async sendWelcomeEmail(to: string, nome: string): Promise<void> {
+    if (!this.transporter) {
+      this.logger.warn('Email não configurado — boas-vindas não enviado.');
+      return;
+    }
+    const from = process.env.MAIL_FROM?.trim() || `Lead2Pack <${process.env.MAIL_USER}>`;
+    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3001';
+    const html = `<div style="font-family:system-ui,sans-serif;font-size:15px;color:#1a1a1a;max-width:560px;">
+  <div style="background:#0B2443;padding:24px 32px;border-radius:8px 8px 0 0;">
+    <p style="color:#fff;font-size:20px;font-weight:700;margin:0;">Bem-vindo(a) à Lead2Pack!</p>
+  </div>
+  <div style="background:#f9fafb;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e5e7eb;">
+    <p>Olá, <strong>${escapeHtml(nome)}</strong>!</p>
+    <p>Seu cadastro na <strong>Lead2Pack</strong> foi realizado com sucesso.</p>
+    <p style="margin:24px 0;">
+      <a href="${frontendUrl}" style="background:#4F83A6;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Acessar a plataforma</a>
+    </p>
+    <p style="font-size:13px;color:#666;">Se você não realizou este cadastro, ignore este e-mail.</p>
+  </div>
+  <p style="font-size:12px;color:#9ca3af;text-align:center;margin-top:16px;">— Mensagem automática Lead2Pack</p>
+</div>`;
+    await this.transporter.sendMail({
+      from, to,
+      subject: 'Bem-vindo(a) à Lead2Pack!',
+      text: `Olá, ${nome}!\n\nSeu cadastro na Lead2Pack foi realizado com sucesso.\n\nAcesse: ${frontendUrl}\n\n— Lead2Pack`,
+      html,
+    });
+    this.logger.log(`E-mail de boas-vindas enviado para ${to}`);
+  }
+
   async sendPasswordResetEmail(to: string, resetLink: string): Promise<void> {
     if (!this.transporter) {
       throw new ServiceUnavailableException(

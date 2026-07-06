@@ -6,6 +6,7 @@ import { ProfissionalModule } from './profissional/profissional.module';
 import { AuthModule } from './auth/auth.module';
 import { ContatoModule } from './contato/contato.module';
 import { CatalogModule } from './catalog/catalog.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CatalogModule } from './catalog/catalog.module';
     AuthModule,
     ContatoModule,
     CatalogModule,
+    AdminModule,
   ],
 })
 export class AppModule {}
