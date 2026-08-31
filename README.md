@@ -98,3 +98,6 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 # lead-to-pack-admin
+
+
+<!-- Security scan triggered at 2026-08-31 18:23:42 -->
